@@ -1,2 +1,2 @@
 # compiladores
-Programas desenvolvidos na disciplina de Compiladores.
+Programas desenvolvidos na disciplina Compiladores.
