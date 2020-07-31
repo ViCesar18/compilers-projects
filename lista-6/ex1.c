@@ -39,7 +39,7 @@ int main() {
     fLength = ftell(stdin);
     rewind(stdin);
 
-    subString = (char *) calloc(fLength, sizeof(char));
+    subString = (char *) calloc(fLength, sizeof(char)); // Aloca o espaço necessário para a subString
 
     char c;
     int lastFinal = 0, currentState = 1, i = 0;
@@ -49,7 +49,7 @@ int main() {
     while(true) {
         int column;
 
-        if(c >= '0' && c <= '9') {
+        if(c >= '0' && c <= '9') {  // Verifica qual é o char lido para designar a sua respectiva coluna na matriz do autômato
             column = c - '0' + 8;
         }
         else if(c == 'a')
@@ -83,10 +83,12 @@ int main() {
         else {
             nextState = automaton[currentState][column];
         }
-        //printf("(%c)%d = [%d][%d]\n", c, nextState, currentState, column);
-        if(nextState == 0) {
-            if(lastFinal != 0) {
-                if(lastFinal != currentState) {
+
+        //printf("(%c)%d = [%d][%d]\n", c, nextState, currentState, column);    // debug
+
+        if(nextState == 0) {    // Caso o próximo estado seja 0 significa que a subString foi completamente lida
+            if(lastFinal != 0) {                // Condional que verifica se a subString passou por algum token válido por mais
+                if(lastFinal != currentState) { // que tenha finalizado em um estado não final
                     subString[i - 1] = '\0';
                     currentState = lastFinal;
                     if(c != -1)
@@ -97,7 +99,7 @@ int main() {
                 }
             }
 
-            switch(currentState) {
+            switch(currentState) {      // Verifica em qual estado a subString finalizou para printar seu devido token
                 case 3:
                     first ? printf("ELE") : printf("\nELE");
                     break;
@@ -135,22 +137,19 @@ int main() {
                     first ? printf("REAL ") : printf("\nREAL ");
                     break;
                 default:
-                    if(c == ' ' || c == '\n' || c == '\r') {
-                        if(i > 0)   //Caso a substring seja só uma quebra de linha, ignora (não entra no if)
-                            first ? printf("ERRO") : printf("\nERRO");
-                    }
-                    else {
+                    // Não trata como ERRO se o c for espaço, \n ou \r e a subString esteja vazia
+                    if((c != ' ' && c != '\n' && c != '\r') || ((c == ' ' || c == '\n' || c == '\r') && i != 0)) {
                         first ? printf("ERRO") : printf("\nERRO");
 
-                        if(column != -1) {
+                        if(column != -1) {  //  c está no alfabeto do autômato
                             c = getc(stdin);
                         }
 
                         if(feof(stdin))
                             break;
 
-                        fseek(stdin, -(strlen(subString) + 1), SEEK_CUR);
-                        c = getc(stdin);
+                        fseek(stdin, -(strlen(subString) + 1), SEEK_CUR);   // Volta o tamanho da subString no arquivo para fazer a verificação
+                        c = getc(stdin);                                    // nos outros caracteres dela
                         memset(subString, 0, sizeof(subString));
                     }
 
@@ -158,11 +157,11 @@ int main() {
             }
             first = false;
 
-            if(currentState == 19 || currentState == 22) {
+            if(currentState == 19 || currentState == 22) {  // Se o token for REAL ou INTEIRO printa a subString junto com o token
                 subString[i] = '\0';
                 printf("%s", subString);
             }
-            if(column == -1 && strlen(subString) == 0) {
+            if(column == -1 && strlen(subString) == 0) {    // Caso o caractere lido seja inválido e o token atual tenha sido ERRO, lê o próximo
                 c = getc(stdin);
             }
 
@@ -177,13 +176,13 @@ int main() {
 
             continue;
         }
-        else {
+        else {  // subString ainda não foi completamente lida, coloca c na subString e lê o próximo caractere do arquivo
             subString[i] = c;
             i++;
             c = getc(stdin);
         }
 
-        currentState = nextState;
+        currentState = nextState;   // Atualização do estado atual e do último estado final percorrido
         if(automaton[currentState][20] == 1) {
             lastFinal = currentState;
         }
