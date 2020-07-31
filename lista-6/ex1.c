@@ -138,7 +138,7 @@ int main() {
                     break;
                 default:
                     // Não trata como ERRO se o c for espaço, \n ou \r e a subString esteja vazia
-                    if((c != ' ' && c != '\n' && c != '\r') || ((c == ' ' || c == '\n' || c == '\r') && i != 0)) {
+                    if((c != ' ' && c != '\n' && c != '\r') || i != 0) {
                         first ? printf("ERRO") : printf("\nERRO");
 
                         if(column != -1) {  //  c está no alfabeto do autômato
