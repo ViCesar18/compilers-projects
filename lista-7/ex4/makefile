@@ -1,7 +1,7 @@
 FLEX = flex
 CC = gcc
-CFLAGS = 
-LIBS = 
+CFLAGS =
+LIBS =
 
 PROGRAMA = cstats
 LEXICO = ex4.l

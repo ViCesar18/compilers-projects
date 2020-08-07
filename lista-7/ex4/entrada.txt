@@ -1,9 +1,14 @@
-//asdsad
-/*asda
-asda;sd
-sd*/;
-asdasd
-asdass
-asd
+#include <stdio.h>
 
+int main() {
+    //Comentário de uma linha
 
+    printf("eae);
+
+    /*Comentário
+    de
+    várias
+    linhas*/
+
+    return 0;
+}
