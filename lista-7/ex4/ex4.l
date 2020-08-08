@@ -11,122 +11,92 @@
     int preproc_direct = 0;
 %}
 
-%s blank
-%s normal
-%s comment
+%x normal
+%x comment
+%x linecomment
 
 %%
 
-"#include"|"#define" {
+<*>"#include"|"#define" {
     preproc_direct++;
-
-    BEGIN(normal);
 }
 
-"//".*"\n" {
-    comment_lines++;
-    total_lines++;
-
-    char *p;
-
-    //Verificar ';' dentro de comentário de uma linha
-    p = strchr(yytext, ';');
-    while(p != NULL) {
-        semi_colons++;
-        p = strchr(p + 1, ';');
-    }
-
-    //Verificar "#include" dentro de comentário de uma linha
-    p = strstr(yytext, "#include");
-    while(p != NULL) {
-        preproc_direct++;
-        p = strstr(p + 8, "#include");
-    }
-
-    //Verificar "#define" dentro de comentário de uma linha
-    p = strstr(yytext, "#define");
-    while(p != NULL) {
-        preproc_direct++;
-        p = strstr(p + 7, "#define");
-    }
-
-    BEGIN(comment);
-}
-
-"/*"(.|\n)*"*/".*\n {
-    char *p;
-
-    //Verificar quantas linhas existem dentro de comentário de várias linhas
-    p = strchr(yytext, '\n');
-    while(p != NULL) {
-        comment_lines++;
-        total_lines++;
-        p = strchr(p + 1, '\n');
-    }
-
-    //Verificar ';' dentro de comentário de várias linhas
-    p = strchr(yytext, ';');
-    while(p != NULL) {
-        semi_colons++;
-        p = strchr(p + 1, ';');
-    }
-
-    //Verificar "#include" dentro de comentário de várias linhas
-    p = strstr(yytext, "#include");
-    while(p != NULL) {
-        preproc_direct++;
-        p = strstr(p + 8, "#include");
-    }
-
-    //Verificar "#define" dentro de comentário de várias linhas
-    p = strstr(yytext, "#define");
-    while(p != NULL) {
-        preproc_direct++;
-        p = strstr(p + 7, "#define");
-    }
-
-    BEGIN(comment);
-}
-
-^[ \t]*[\n] {
-    blank_lines++;
-    total_lines++;
-    BEGIN(blank);
-}
-
-; {
+<*>; {
     semi_colons++;
 }
 
-\n {
-    normal_lines++;
-    total_lines++;
-    BEGIN(normal);
+<*>"//" {
+    BEGIN(linecomment);
 }
 
-<normal><<EOF>> {
+<linecomment>\n {
+    comment_lines++;
     total_lines++;
-    normal_lines++;
+    BEGIN(INITIAL);
+}
+
+<linecomment><<EOF>> {
+    comment_lines++;
+    total_lines++;
     return 0;
 }
 
-<blank><<EOF>> {
+<*>"/*" {
+    BEGIN(comment);
+}
+
+<comment>"*/".*\n {
+    comment_lines++;
     total_lines++;
-    blank_lines++;
-    return 0;
+    BEGIN(INITIAL);
+}
+
+<comment>\n {
+    comment_lines++;
+    total_lines++;
 }
 
 <comment><<EOF>> {
-    total_lines++;
     comment_lines++;
+    total_lines++;
     return 0;
 }
 
-[^ \t] {
+[^ \t\n] {
     BEGIN(normal);
 }
 
+<normal>\n {
+    normal_lines++;
+    total_lines++;
+    BEGIN(INITIAL);
+}
+
+<normal><<EOF>> {
+    normal_lines++;
+    total_lines++;
+    return 0;
+}
+
+\n {
+    blank_lines++;
+    total_lines++;
+    BEGIN(INITIAL);
+}
+
+<<EOF>> {
+    blank_lines++;
+    total_lines++;
+    return 0;
+}
+
 . {}
+
+<comment>. {}
+
+<normal>. {}
+
+<linecomment>. {}
 
 %%
 
