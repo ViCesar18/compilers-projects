@@ -61,6 +61,10 @@ int main() {
         else if(c == ' ') {
             column = 39;
         }
+        else if(c == '\r') {
+            c = getc(arq);
+            continue;
+        }
         else {  //Caso o caractere lido seja "other"
             column = 40;
         }

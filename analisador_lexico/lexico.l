@@ -411,21 +411,21 @@
     column_counter += strlen(yytext);
 }
 
-0|[1-9]+ {
+0|[1-9][0-9]* {
     if(!first) printf("\n");
     first = false;
     printf("NUM_INTEGER(%s)", yytext);
     column_counter += strlen(yytext);
 }
 
-0[1-7]+ {
+0[0-7]+ {
     if(!first) printf("\n");
     first = false;
     printf("NUM_OCTAL(%s)", yytext);
     column_counter += strlen(yytext);
 }
 
-("0x"|"0X")[1-9a-fA-F]+ {
+("0x"|"0X")[0-9a-fA-F]+ {
     if(!first) printf("\n");
     first = false;
     printf("NUM_HEXA(%s)", yytext);
@@ -434,6 +434,13 @@
 
 \" {
     BEGIN(string);
+    column_counter += strlen(yytext);
+}
+
+\"\" {
+    if(!first) printf("\n");
+    first = false;
+    printf("STRING()");
     column_counter += strlen(yytext);
 }
 
@@ -453,7 +460,7 @@
     column_counter += strlen(yytext);
 }
 
-<character>[^\'] {
+<character>\\?[^\'] {
     if(!first) printf("\n");
     first = false;
     printf("CHARACTER(%s)", yytext);
@@ -474,8 +481,6 @@
     column_counter += strlen(yytext);
 }
 
-<comment>[^*/\n]* {}
-
 <comment>\n {
     line_counter++;
     column_counter = 1;
@@ -485,6 +490,8 @@
     BEGIN(INITIAL);
     column_counter += strlen(yytext);
 }
+
+<comment>.  {}
 
 <comment><<EOF>> {
     if(!first) printf("\n");

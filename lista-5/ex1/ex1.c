@@ -71,6 +71,10 @@ int main() {
                 break;
             continue;
         }
+        else if (c == '\r') {
+            c = getc(arq);
+            continue;
+        }
         else {  //Caso o caractere lido não esteja no alfabeto
             column = -1;
         }

@@ -9,11 +9,15 @@ lista-7/ex2/ex2
 lista-7/ex3/ex3
 lista-7/ex4/cstats
 
+analisador_lexico/lexico
+
 #Códigos Gerados pelo LEX
 lista-7/ex1/lex.yy.c
 lista-7/ex2/lex.yy.c
 lista-7/ex3/lex.yy.c
 lista-7/ex4/lex.yy.c
+
+analisador_lexico/lex.yy.c
 
 #Exemplo do professor
 lista-7/exemplo
