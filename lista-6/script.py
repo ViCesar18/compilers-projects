@@ -2,8 +2,8 @@ import os
 import time
 
 #Compilar
-print('gcc ex1.c -o ex1')
-os.system('gcc ex1.c -o ex1')
+print('Compilando')
+os.system('make')
 time.sleep(1)
 
 #Executar
@@ -13,8 +13,8 @@ saida = 'saida_01.txt'
 
 while(i <= 20):
     i += 1
-    print(f'./ex1 < entradas/{entrada} > saidas/{saida}')
-    os.system(f'./ex1 < entradas/{entrada} > saidas/{saida}')
+    print(f'./l6e1 < entradas/{entrada} > saidas/{saida}')
+    os.system(f'./l6e1 < entradas/{entrada} > saidas/{saida}')
 
     if(i < 10):
         entrada = f'entrada_0{i}.txt'

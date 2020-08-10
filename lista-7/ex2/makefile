@@ -1,15 +1,15 @@
 FLEX = flex
 CC = gcc
-CFLAGS = 
+CFLAGS = -std=c99
 LIBS = 
 
-PROGRAMA = ex2
+EXEC_NAME = l7e2
 LEXICO = ex2.l
 
-$(PROGRAMA): $(LEXICO)
+$(EXEC_NAME): $(LEXICO)
 	$(FLEX) $(LEXICO)
-	$(CC) lex.yy.c $(LIBS) -o $(PROGRAMA)
+	$(CC) lex.yy.c $(CFLAGS) $(LIBS) -o $(EXEC_NAME)
 
 clean:
 	rm -f lex.yy.c
-	rm -f ex1
+	rm -f $(EXEC_NAME)

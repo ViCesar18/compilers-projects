@@ -17,22 +17,17 @@ int main() {
         /*state 8*/ {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 0, 1}
     };
 
-    FILE *arq = fopen("ex1.txt", "r");
-    if(arq == NULL) {
-        perror("Erro na leitura do arquivo!\n");
-        exit(1);
-    }
     char *subString;
     int fLength;
 
-    fseek(arq, 0, SEEK_END);
-    fLength = ftell(arq);
-    rewind(arq);
+    fseek(stdin, 0, SEEK_END);
+    fLength = ftell(stdin);
+    rewind(stdin);
 
     subString = (char *) malloc(sizeof(char) * fLength);
 
     int lastFinal = 0, currentState = 1, i = 0;
-    char c = fgetc(arq);
+    char c = fgetc(stdin);
 
     while(true){
         int column;
@@ -65,14 +60,14 @@ int main() {
             currentState = 1;
             lastFinal = 0;
 
-            c = fgetc(arq);
+            c = fgetc(stdin);
 
-            if(feof(arq))
+            if(feof(stdin))
                 break;
             continue;
         }
         else if (c == '\r') {
-            c = getc(arq);
+            c = getc(stdin);
             continue;
         }
         else {  //Caso o caractere lido não esteja no alfabeto
@@ -102,19 +97,19 @@ int main() {
                 lastFinal = 0;
             }
 
-            if(column == -1 && !feof(arq)) {
+            if(column == -1 && !feof(stdin)) {
                 printf("ERRO\n");
-                c = fgetc(arq);
+                c = fgetc(stdin);
             }
 
-            if(feof(arq))
+            if(feof(stdin))
                 break;
             continue;
         }
         else {  //Não terminou de ler a cedeia => adiciona o caractere atual na substring e lê o próximo caractere
             subString[i] = c;
             i++;
-            c = fgetc(arq);
+            c = fgetc(stdin);
         }
 
         //Ajusta o último estado final percorrido

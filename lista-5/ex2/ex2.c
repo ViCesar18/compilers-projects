@@ -22,23 +22,18 @@ int main() {
        /*state 13*/ {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     };
 
-    FILE *arq = fopen("ex2.txt", "r");
-    if(arq == NULL) {
-        perror("Erro na leitura do arquivo!\n");
-        exit(1);
-    }
     char *subString;
     int fLength;
 
-    fseek(arq, 0, SEEK_END);
-    fLength = ftell(arq);
-    rewind(arq);
+    fseek(stdin, 0, SEEK_END);
+    fLength = ftell(stdin);
+    rewind(stdin);
 
     subString = (char *) malloc(sizeof(char) * fLength);
 
     int lastFinal = 0, currentState = 1, i = 0;
     char readChar;
-    char c = fgetc(arq);
+    char c = fgetc(stdin);
 
     while(true){
         int column;
@@ -62,7 +57,7 @@ int main() {
             column = 39;
         }
         else if(c == '\r') {
-            c = getc(arq);
+            c = getc(stdin);
             continue;
         }
         else {  //Caso o caractere lido seja "other"
@@ -114,14 +109,14 @@ int main() {
                 default:    //Finalizou a leitura num estado não final
                     if(c != '\n')   //Ignora o '\n'
                         printf("%s\n", " Cadeia nao aceita!");   //Autômato tentou ler um caractere que o estado não aceita
-                    c = fgetc(arq);                             //porém o estado não era final (logo significa que a cadeia não foi aceita)
+                    c = fgetc(stdin);                             //porém o estado não era final (logo significa que a cadeia não foi aceita)
                     break;
             }
 
             currentState = 1;
             lastFinal = 0;
 
-            if(feof(arq))
+            if(feof(stdin))
                 break;
             continue;
         }
@@ -130,7 +125,7 @@ int main() {
                 subString[i] = c;
                 i++;
             }
-            c = fgetc(arq);
+            c = fgetc(stdin);
         }
 
         //Ajusta o ultimo estado final percorrido
