@@ -1,16 +1,13 @@
+#include "lexico.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdbool.h>
 
-enum TOKEN {ID = 1, AND, ARRAY, BEGIN, DO, DIV, END, ELSE, FUNCTION, IF, NOT, OF, OR, PROGRAM, PROCEDURE, THEN, VAR, WHILE,
-            SEMICOLON, DOT, DOUBLE_DOT, COLON, ASSIGNMENT, L_RECT_BRACKET, R_RECT_BRACKET, COMMA, L_BRACKET, R_BRACKET,
-            EQUAL, LESS_THAN, LESS_EQUAL, DIFFERENT, GREATER_THAN, GREATER_EQUAL, PLUS, MINUS, ASTERISK, NUM, COMMENT};
-int token;
-
 int lineNumber = 1;
 int columnNumber = 1;
 
-char * getNomeToken (int token){
+// Retorna o nome dos tokens
+/*char * getNomeToken (int token){
     if (token == ID) return "ID";
     else if (token == AND) return "AND";
     else if (token == ARRAY) return "ARRAY";
@@ -51,7 +48,7 @@ char * getNomeToken (int token){
     else if (token == NUM) return "NUM";
     else if (token == COMMENT) return "COMMENT";  
     else return ""; 
-}
+} */
 
 int getToken() {
     int automaton[][54] = {
@@ -150,7 +147,6 @@ int getToken() {
         /*State 89*/ {88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 88, 87, 88, 88, 88, 88, 89, 88, 87,  0},
     };
 
-    char c;
     int lastFinal = 0, currentState = 1;
     
     c = tolower(getc(stdin));
@@ -476,15 +472,4 @@ int getToken() {
             lastFinal = currentState;
         }
     }
-}
-
-int main() {
-    while(true) {
-        if(feof(stdin))
-            break;
-
-        printf("%s\n", getNomeToken(getToken()));
-    }
-
-    return 0;
 }

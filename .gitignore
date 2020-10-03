@@ -17,3 +17,6 @@ analisador_lexico/lex.yy.c
 
 #Exemplo do professor
 lista-7/exemplo
+
+#Objetos
+*.o
