@@ -4,8 +4,54 @@
 
 enum TOKEN {ID = 1, AND, ARRAY, BEGIN, DO, DIV, END, ELSE, FUNCTION, IF, NOT, OF, OR, PROGRAM, PROCEDURE, THEN, VAR, WHILE,
             SEMICOLON, DOT, DOUBLE_DOT, COLON, ASSIGNMENT, L_RECT_BRACKET, R_RECT_BRACKET, COMMA, L_BRACKET, R_BRACKET,
-            EQUAL, LESS_THEN, LESS_EQUAL, DIFFERENT, GREATER_THEN, GREATER_EQUAL, PLUS, MINUS, ASTERISK, NUM, COMMENT};
+            EQUAL, LESS_THAN, LESS_EQUAL, DIFFERENT, GREATER_THAN, GREATER_EQUAL, PLUS, MINUS, ASTERISK, NUM, COMMENT};
 int token;
+
+int lineNumber = 1;
+int columnNumber = 1;
+
+char * getNomeToken (int token){
+    if (token == ID) return "ID";
+    else if (token == AND) return "AND";
+    else if (token == ARRAY) return "ARRAY";
+    else if (token == BEGIN) return "BEGIN";
+    else if (token == DO) return "DO";
+    else if (token == DIV) return "DIV";
+    else if (token == END) return "END";
+    else if (token == ELSE) return "ELSE";
+    else if (token == FUNCTION) return "FUNCTION";
+    else if (token == IF) return "IF";
+    else if (token == NOT) return "NOT";
+    else if (token == OF) return "OF";
+    else if (token == OR) return "OR";
+    else if (token == PROGRAM) return "PROGRAM";
+    else if (token == PROCEDURE) return "PROCEDURE";
+    else if (token == THEN) return "THEN";
+    else if (token == VAR) return "VAR";
+    else if (token == WHILE) return "WHILE";
+    else if (token == SEMICOLON) return "SEMICOLON";
+    else if (token == DOT) return "DOT";
+    else if (token == DOUBLE_DOT) return "DOUBLEDOT";
+    else if (token == COLON) return "COLON";
+    else if (token == ASSIGNMENT) return "ASSIGNMENT";
+    else if (token == L_RECT_BRACKET) return "L_RECT_BRACKET";
+    else if (token == R_RECT_BRACKET) return "R_RECT_BRACKET";
+    else if (token == COMMA) return "COMMA";
+    else if (token == L_BRACKET) return "L_BRACKET";
+    else if (token == R_BRACKET) return "R_BRACKET";
+    else if (token == EQUAL) return "EQUAL";
+    else if (token == LESS_THAN) return "LESS_THAN";
+    else if (token == LESS_EQUAL) return "LESS_EQUAL";
+    else if (token == DIFFERENT) return "DIFFERENT";
+    else if (token == GREATER_THAN) return "GREATER_THAN";
+    else if (token == GREATER_EQUAL) return "GREATER_EQUAL";
+    else if (token == PLUS) return "PLUS";
+    else if (token == MINUS) return "MINUS";
+    else if (token == ASTERISK) return "ASTERISK";
+    else if (token == NUM) return "NUM";
+    else if (token == COMMENT) return "COMMENT";  
+    else return ""; 
+}
 
 int getToken() {
     int automaton[][54] = {
@@ -106,72 +152,99 @@ int getToken() {
 
     char c;
     int lastFinal = 0, currentState = 1;
-
+    
     c = tolower(getc(stdin));
 
     while(true){
         int column;
 
-        if(c >= 'a' && c <= 'z') {
-            column = c - 'a';
-        }
-        else if(c >= '0' && c <= '9') {
-            column = c - '0' + 26;
-        }
-        else if(c == '_') {
-            column = 36;
-        }
-        else if(c == ';') {
-            column = 37;
-        }
-        else if(c == '.') {
-            column = 38;
-        }
-        else if(c == '=') {
-            column = 39;
-        }
-        else if(c == ':') {
-            column = 40;
-        }
-        else if(c == '[') {
-            column = 41;
-        }
-        else if(c == ']') {
-            column = 42;
-        }
-        else if(c == ',') {
-            column = 43;
-        }
-        else if(c == '(') {
-            column = 44;
-        }
-        else if(c == ')') {
-            column = 45;
-        }
-        else if(c == '<') {
-            column = 46;
-        }
-        else if(c == '>') {
-            column = 47;
-        }
-        else if(c == '+') {
-            column = 48;
-        }
-        else if(c == '-') {
-            column = 49;
-        }
-        else if(c == '*') {
-            column = 50;
-        }
-        else if(c == '{') {
-            column = 51;
-        }
-        else if(c == '}') {
-            column = 52;
-        }
-        else {
-            column = -1;
-        }
+        do {
+            if(c >= 'a' && c <= 'z') {
+                column = c - 'a';
+            }
+            else if(c >= '0' && c <= '9') {
+                column = c - '0' + 26;
+            }
+            else if(c == '_') {
+                column = 36;
+            }
+            else if(c == ';') {
+                column = 37;
+            }
+            else if(c == '.') {
+                column = 38;
+            }
+            else if(c == '=') {
+                column = 39;
+            }
+            else if(c == ':') {
+                column = 40;
+            }
+            else if(c == '[') {
+                column = 41;
+            }
+            else if(c == ']') {
+                column = 42;
+            }
+            else if(c == ',') {
+                column = 43;
+            }
+            else if(c == '(') {
+                column = 44;
+            }
+            else if(c == ')') {
+                column = 45;
+            }
+            else if(c == '<') {
+                column = 46;
+            }
+            else if(c == '>') {
+                column = 47;
+            }
+            else if(c == '+') {
+                column = 48;
+            }
+            else if(c == '-') {
+                column = 49;
+            }
+            else if(c == '*') {
+                column = 50;
+            }
+            else if(c == '{') {
+                column = 51;
+            }
+            else if(c == '}') {
+                column = 52;
+            }
+            else if(c == ' ' || c == '\n') {
+                if(automaton[currentState][53]) {
+                    column = -1;
+                }
+                else {
+                    column = -2;
+                }
+
+                if(c == '\n') {
+                    lineNumber++;
+                    columnNumber = 1;
+                }
+                else {
+                    columnNumber++;
+                }
+
+                c = tolower(getc(stdin));
+            }
+            else {
+                if(automaton[currentState][53] || currentState == 1) {
+                    column = -1;
+                }
+                else {
+                    column = -2;
+                    c = tolower(getc(stdin));
+                    columnNumber++;
+                }
+            }
+        } while(column == -2);
 
         int nextState;
         if(column == -1) {
@@ -349,7 +422,7 @@ int getToken() {
                     break;
                 
                 case 77:
-                    return LESS_THEN;
+                    return LESS_THAN;
                     break;
 
                 case 78:
@@ -361,7 +434,7 @@ int getToken() {
                     break;
 
                 case 80:
-                    return GREATER_THEN;
+                    return GREATER_THAN;
                     break;
                 
                 case 81:
@@ -389,11 +462,13 @@ int getToken() {
                     break;
 
                 default:
+                printf("ERRO LEXICO. Linha: %d Coluna: %d -> %c\n", lineNumber, columnNumber, c);
                     return -1;
             }
         }
         else {
             c = tolower(getc(stdin));
+            columnNumber++;
         }
 
         currentState = nextState;
@@ -401,4 +476,15 @@ int getToken() {
             lastFinal = currentState;
         }
     }
+}
+
+int main() {
+    while(true) {
+        if(feof(stdin))
+            break;
+
+        printf("%s\n", getNomeToken(getToken()));
+    }
+
+    return 0;
 }

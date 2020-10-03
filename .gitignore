@@ -5,6 +5,7 @@ pascal
 
 #Arquivos de teste
 *.txt
+*.pas
 
 #Códigos Gerados pelo LEX
 lista-7/ex1/lex.yy.c
