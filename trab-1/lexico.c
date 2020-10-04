@@ -1,10 +1,13 @@
 #include "lexico.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <string.h>
 
-int lineNumber = 1;
-int columnNumber = 1;
+int lineNumber = 1;     //Contador de linhas do programa.
+int columnNumber = 1;   //Contador de colunas em cada linha do programa.
+int i = 0;
 
 // Retorna o nome dos tokens
 /*char * getNomeToken (int token){
@@ -49,6 +52,16 @@ int columnNumber = 1;
     else if (token == COMMENT) return "COMMENT";  
     else return ""; 
 } */
+
+void allocSubstring() {
+    fseek(stdin, 0, SEEK_END);
+
+    int length = ftell(stdin);
+
+    subString = (char *) calloc(length, sizeof(char));
+
+    rewind(stdin);
+}
 
 int getToken() {
     int automaton[][54] = {
@@ -148,8 +161,17 @@ int getToken() {
     };
 
     int lastFinal = 0, currentState = 1;
+    char c;
     
+    memset(subString, 0, sizeof(subString));
+    i = 0;
+
     c = tolower(getc(stdin));
+    
+    if(c != ' ' && c != '\n') {
+        subString[i] = c;
+        i++;
+    }
 
     while(true){
         int column;
@@ -212,7 +234,7 @@ int getToken() {
             else if(c == '}') {
                 column = 52;
             }
-            else if(c == ' ' || c == '\n') {
+            else if(c == ' ' || c == '\n') {        //Lógica para ignorar espaços e quebras de linha
                 if(automaton[currentState][53]) {
                     column = -1;
                 }
@@ -229,18 +251,23 @@ int getToken() {
                 }
 
                 c = tolower(getc(stdin));
+
+                if(c != ' ' && c != '\n') {
+                    subString[i] = c;
+                    i++;
+                }
             }
-            else {
-                if(automaton[currentState][53] || currentState == 1) {
+            else {  //Símbolos que não pertencem ao alfabeto
+                if(automaton[currentState][53] || currentState == 1) {  //Vai tratar o ERRO léxico
                     column = -1;
                 }
-                else {
+                else {              //Ignora símbolos que não estão no alfabeto se for um comentário (estado não final)
                     column = -2;
                     c = tolower(getc(stdin));
                     columnNumber++;
                 }
             }
-        } while(column == -2);
+        } while(column == -2);  //Loop para ignorar espaços e quebras de linha
 
         int nextState;
         if(column == -1) {
@@ -253,6 +280,8 @@ int getToken() {
         if(nextState == 0) {
             if(!feof(stdin) && automaton[currentState][53])   //Caso termine de ler a cadeia, mas não seja o final do arquivo e
                 fseek(stdin, -1, SEEK_CUR);                    //nem um estado não final, volta um caractere na entrada padrão
+
+            subString[i - 1] = '\0';
 
             switch(currentState) {
                 case 2:
@@ -458,13 +487,19 @@ int getToken() {
                     break;
 
                 default:
-                printf("ERRO LEXICO. Linha: %d Coluna: %d -> %c\n", lineNumber, columnNumber, c);
+                    printf("ERRO LEXICO. Linha: %d Coluna: %d -> %c", lineNumber, columnNumber, c);
+                    exit(1);
                     return -1;
             }
         }
         else {
             c = tolower(getc(stdin));
             columnNumber++;
+
+            if(c != ' ' && c != '\n') {
+                subString[i] = c;
+                i++;
+            }
         }
 
         currentState = nextState;

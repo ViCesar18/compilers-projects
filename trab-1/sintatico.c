@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include "lexico.h"
 
 extern int lineNumber;
@@ -17,7 +19,8 @@ void eat(int t) {
         advance();
     }
     else {
-        printf("ERRO DE SINTAXE.");
+        printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString);
+        exit(1);
     }
 }
 
@@ -56,7 +59,7 @@ void S() {
     switch(token) {
         case PROGRAM: P(); eat(-1); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -64,7 +67,7 @@ void P() {
     switch(token) {
         case PROGRAM: eat(PROGRAM); eat(ID); eat(SEMICOLON); B(); eat(DOT); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -75,7 +78,7 @@ void B() {
         case FUNCTION:
         case BEGIN: BV(); Bprime(); eat(BEGIN); COM(); LCOM(); eat(END); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -87,7 +90,7 @@ void BV() {
         case FUNCTION:
         case BEGIN: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -99,7 +102,7 @@ void Bprime() {
 
         case BEGIN: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -111,7 +114,7 @@ void LBV() {
         case FUNCTION:
         case BEGIN: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -125,7 +128,7 @@ void T() {
         case MINUS:
         case NUM: SG(); eat(NUM); eat(DOUBLE_DOT); CONS(); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -137,7 +140,7 @@ void Tprime() {
         case R_RECT_BRACKET:
         case COMMA: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -148,7 +151,7 @@ void PF() {
         case SEMICOLON:
         case COLON: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -158,7 +161,7 @@ void PV() {
 
         case ID: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -168,7 +171,7 @@ void LPF() {
 
         case L_BRACKET: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -197,7 +200,7 @@ void V() {
         case AND:
         case COMMA: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -214,7 +217,7 @@ void COM() {
         case SEMICOLON:
         case END: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -228,7 +231,7 @@ void COMprime() {
         case SEMICOLON:
         case END: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -239,7 +242,7 @@ void ECOM() {
         case SEMICOLON:
         case END: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -252,7 +255,7 @@ void EX() {
         case NUM:
         case NOT: EXS(); EXprime(); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -273,7 +276,7 @@ void EXprime() {
         case DO:
         case COMMA: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -291,7 +294,7 @@ void OP() {
 
         case GREATER_THAN: eat(GREATER_THAN); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -304,7 +307,7 @@ void EXS() {
         case NUM:
         case NOT: SG(); TERM(); LEXS(); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -330,7 +333,7 @@ void LEXS() {
         case GREATER_THAN:
         case COMMA: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -345,7 +348,7 @@ void SG() {
         case NUM:
         case NOT: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -356,7 +359,7 @@ void TERM() {
         case NUM:
         case NOT: F(); LTERM(); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -385,7 +388,7 @@ void LTERM() {
         case OR:
         case COMMA: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -399,7 +402,7 @@ void F() {
 
         case NOT: eat(NOT); F(); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -428,7 +431,7 @@ void Fprime() {
 
         case L_BRACKET: eat(L_BRACKET); Fprime2(); eat(R_BRACKET); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -443,7 +446,7 @@ void Fprime2() {
 
         case R_BRACKET: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -455,7 +458,7 @@ void CONS() {
         case MINUS:
         case NUM: SG(); eat(NUM); break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -465,7 +468,7 @@ void LID() {
 
         case COLON: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -475,7 +478,7 @@ void LCOM() {
 
         case END: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -485,7 +488,7 @@ void LT() {
 
         case R_RECT_BRACKET: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
@@ -496,14 +499,18 @@ void LEX() {
         case R_RECT_BRACKET:
         case R_BRACKET: break;
 
-        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%c\"\n", lineNumber, c); break;
+        default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
 }
 
 int main() {
+    allocSubstring();
+
     token = getToken();
 
     S();
+
+    printf("PROGRAMA CORRETO.");
 
     return 0;
 }
