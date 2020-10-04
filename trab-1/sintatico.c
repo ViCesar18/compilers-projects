@@ -169,7 +169,7 @@ void LPF() {
     switch(token) {
         case SEMICOLON: eat(SEMICOLON); PV(); eat(ID); LID(); eat(COLON); eat(ID); LPF(); break;
 
-        case L_BRACKET: break;
+        case R_BRACKET: break;
 
         default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
@@ -282,7 +282,7 @@ void EXprime() {
 
 void OP() {
     switch(token) {
-        case EQUAL: eat(EQUAL);
+        case EQUAL: eat(EQUAL); break;
 
         case DIFFERENT: eat(DIFFERENT); break;
 
@@ -339,9 +339,9 @@ void LEXS() {
 
 void SG() {
     switch(token) {
-        case PLUS: eat(PLUS);
+        case PLUS: eat(PLUS); break;
 
-        case MINUS: eat(MINUS);
+        case MINUS: eat(MINUS); break;
 
         case ID:
         case L_BRACKET:

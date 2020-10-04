@@ -19,6 +19,9 @@ while(i <= 5):
     entrada = f'tc0{i}.pas'
     saida = f'saida_0{i}.txt'
 
+print('./pascal < testes/teste_foda.pas > saidas/saida_foda.txt')
+os.system('./pascal < testes/teste_foda.pas > saidas/saida_foda.txt')
+
 #Make Clean
 os.system('make clean')
 
@@ -34,3 +37,6 @@ while(i <= 5):
     time.sleep(0.5)
 
     saida = f'saida_0{i}.txt'
+
+print('diff saidas-esperadas/saida_foda.txt saidas/saida_foda.txt')
+os.system('diff saidas-esperadas/saida_foda.txt saidas/saida_foda.txt')
