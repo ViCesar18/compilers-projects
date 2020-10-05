@@ -7,7 +7,9 @@ extern int lineNumber;
 
 void advance() {
     if(!feof(stdin)) {
-        token = getToken();
+        do {
+            token = getToken();
+        } while(token == COMMENT);  //Recebe o próximo token (menos comentário)
     }
     else {
         token = -1;
