@@ -6,14 +6,9 @@
 extern int lineNumber;
 
 void advance() {
-    if(!feof(stdin)) {
-        do {
-            token = getToken();
-        } while(token == COMMENT);  //Recebe o próximo token (menos comentário)
-    }
-    else {
-        token = -1;
-    }
+    do {
+        token = getToken();
+    } while(token == COMMENT);  //Recebe o próximo token (menos comentário)
 }
 
 void eat(int t) {
@@ -21,6 +16,13 @@ void eat(int t) {
         advance();
     }
     else {
+        printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString);
+        exit(1);
+    }
+}
+
+void eatLast(int t) {
+    if(token != t) {
         printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString);
         exit(1);
     }
@@ -59,7 +61,7 @@ void LEX();
 
 void S() {
     switch(token) {
-        case PROGRAM: P(); eat(-1); break;
+        case PROGRAM: P(); break;
 
         default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
@@ -67,7 +69,7 @@ void S() {
 
 void P() {
     switch(token) {
-        case PROGRAM: eat(PROGRAM); eat(ID); eat(SEMICOLON); B(); eat(DOT); break;
+        case PROGRAM: eat(PROGRAM); eat(ID); eat(SEMICOLON); B(); eatLast(DOT); break;
 
         default: printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString); exit(1); break;
     }
