@@ -5,17 +5,15 @@
 
 enum errorCode {ERROR_EAT, ERROR_S, ERROR_L, ERROR_E};
 
-bool first = true, errorBool = false;
+bool first = true, breakLine = false;
 
 void advance() {
-    if(!errorBool) {
-        do {
-            token = getToken();
-        } while(token == -1 && !feof(stdin));
-    }
+    do {
+        token = getToken();
+    } while(token == -1 && !feof(stdin));
 }
 
-void error(enum errorCode error, int t) {
+void error(int error, int t) {
     char expectedToken[10], receivedToken[10];
 
     errorBool = true;
@@ -153,8 +151,13 @@ void eat(int t) {
         if(token == t) {
             advance();
         }
-        else if(token == -1) {
+        else if(token == -1 || token == BL) {
+            if(token == BL) {
+                eat(BL);
+            }
+
             errorBool = true;
+            breakLine = true;
 
             if(first) {
                 printf("ERRO SINTATICO: CADEIA INCOMPLETA");
@@ -174,70 +177,85 @@ void E();
 void L();
 
 void S() {
-    switch(token) {
-        case IF:
-            eat(IF);
-            E();
-            eat(THEN);
-            S();
-            eat(ELSE);
-            S();
-            break;
-        
-        case BEGIN:
-            eat(BEGIN);
-            S();
-            L();
-            break;
-        
-        case PRINT:
-            eat(PRINT);
-            E();
-            break;
-        
-        default:
-            error(ERROR_S, 0);
-            break;
+    if(!errorBool) {
+        switch(token) {
+            case IF:
+                eat(IF);
+                E();
+                eat(THEN);
+                S();
+                eat(ELSE);
+                S();
+                break;
+            
+            case BEGIN:
+                eat(BEGIN);
+                S();
+                L();
+                break;
+            
+            case PRINT:
+                eat(PRINT);
+                E();
+                break;
+            
+            default:
+                error(ERROR_S, 0);
+                break;
+        }
     }
 }
 
 void L() {
-    switch(token) {
-        case END:
-            eat(END);
-            break;
+    if(!errorBool) {
+        switch(token) {
+            case END:
+                eat(END);
+                break;
 
-        case SEMI:
-            eat(SEMI);
-            S();
-            L();
-            break;
-        
-        default:
-            error(ERROR_L, 0);
-            break;
+            case SEMI:
+                eat(SEMI);
+                S();
+                L();
+                break;
+            
+            default:
+                error(ERROR_L, 0);
+                break;
+        }
     }
 }
 
 void E() {
-    switch(token) {
-        case NUM:
-            eat(NUM);
-            eat(EQ);
-            eat(NUM);
-            break;
-        
-        default:
-            error(ERROR_E, 0);
-            break;
+    if(!errorBool) {
+        switch(token) {
+            case NUM:
+                eat(NUM);
+                eat(EQ);
+                eat(NUM);
+                break;
+            
+            default:
+                error(ERROR_E, 0);
+                break;
+        }
     }
 }
 
 int main() {
+    errorBool = false;
     token = getToken();
     char c;
+
     do {
         S();
+
+        if(errorBool && !breakLine) {               //Avança até o final da linha caso a cadeia anterior tenha sido um erro e pega o primeiro
+            while(token != BL && !feof(stdin)) {    //token da próxima linha
+                advance();
+            }
+            advance();
+        }
 
         if(!errorBool) {
             if(first) {
@@ -247,21 +265,16 @@ int main() {
             else {
                 printf("\nCADEIA ACEITA");
             }
+
+            if(!feof(stdin)) {      //Come a quebra de linha
+                eat(BL);
+            }
         }
         else {
             errorBool = false;
         }
 
-        while(true) {           //Avança até o final da linha
-            c = getc(stdin);
-
-            if(c == '\n' || feof(stdin)) {
-                break;
-            }
-        }
-
-        advance();
-
+        breakLine = false;
     } while(!feof(stdin));
 
     return 0;
