@@ -166,12 +166,14 @@ int getToken() {
     memset(subString, 0, sizeof(subString));
     i = 0;
 
-    c = tolower(getc(stdin));
+    c = getc(stdin);
     
     if(c != ' ' && c != '\n') {
         subString[i] = c;
         i++;
     }
+
+    c = tolower(c);
 
     while(true){
         int column;
@@ -250,12 +252,14 @@ int getToken() {
                     columnNumber++;
                 }
 
-                c = tolower(getc(stdin));
+                c = getc(stdin);
 
                 if(c != ' ' && c != '\n') {
                     subString[i] = c;
                     i++;
                 }
+
+                c = tolower(c);
             }
             else {  //Símbolos que não pertencem ao alfabeto
                 if(automaton[currentState][53] || currentState == 1) {  //Vai tratar o ERRO léxico
@@ -281,7 +285,12 @@ int getToken() {
             if(!feof(stdin) && automaton[currentState][53])   //Caso termine de ler a cadeia, mas não seja o final do arquivo e
                 fseek(stdin, -1, SEEK_CUR);                    //nem um estado não final, volta um caractere na entrada padrão
 
-            subString[i - 1] = '\0';
+            if(c != ' ') {  //Condição para finalizar a subString
+                subString[i - 1] = '\0';
+            }
+            else {
+                subString[i] = '\0';
+            }
 
             switch(currentState) {
                 case 2:
@@ -493,13 +502,15 @@ int getToken() {
             }
         }
         else {
-            c = tolower(getc(stdin));
+            c = getc(stdin);
             columnNumber++;
 
             if(c != ' ' && c != '\n') {
                 subString[i] = c;
                 i++;
             }
+
+            c = tolower(c);
         }
 
         currentState = nextState;

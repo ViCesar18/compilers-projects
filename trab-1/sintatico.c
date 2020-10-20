@@ -4,6 +4,7 @@
 #include "lexico.h"
 
 extern int lineNumber;
+extern int columnNumber;
 
 void advance() {
     do {
@@ -16,12 +17,20 @@ void eat(int t) {
         advance();
     }
     else {
+        if(columnNumber == 1) { //Caso o erro tenha ocorrido no último token da linha
+            lineNumber--;
+        }
+
         printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString);
         exit(1);
     }
 }
 
 void eatLast(int t) {
+    if(columnNumber == 1) { //Caso o erro tenha ocorrido no último token da linha
+        lineNumber--;
+    }
+    
     if(token != t) {
         printf("ERRO DE SINTAXE. Linha: %d -> \"%s\"", lineNumber, subString);
         exit(1);

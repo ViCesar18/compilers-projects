@@ -11,13 +11,20 @@ i = 1
 entrada = 'tc01.pas'
 saida = 'saida_01.txt'
 
-while(i <= 5):
+while(i <= 10):
     i += 1
-    print(f'./pascal < testes/{entrada} > saidas/{saida}')
-    os.system(f'./pascal < testes/{entrada} > saidas/{saida}')
+    if i < 10:
+        print(f'./pascal < testes/{entrada} > saidas/{saida}')
+        os.system(f'./pascal < testes/{entrada} > saidas/{saida}')
 
-    entrada = f'tc0{i}.pas'
-    saida = f'saida_0{i}.txt'
+        entrada = f'tc0{i}.pas'
+        saida = f'saida_0{i}.txt'
+    else:
+        print(f'./pascal < testes/{entrada} > saidas/{saida}')
+        os.system(f'./pascal < testes/{entrada} > saidas/{saida}')
+
+        entrada = f'tc{i}.pas'
+        saida = f'saida_{i}.txt'
 
 print('./pascal < testes/teste_foda.pas > saidas/saida_foda.txt')
 os.system('./pascal < testes/teste_foda.pas > saidas/saida_foda.txt')
@@ -30,13 +37,20 @@ i = 1
 saida = 'saida_01.txt'
 print('\nComparando com saidas esperadas:')
 
-while(i <= 5):
+while(i <= 10):
     i += 1
-    print(f'diff saidas-esperadas/{saida} saidas/{saida}')
-    os.system(f'diff saidas-esperadas/{saida} saidas/{saida}')
-    time.sleep(0.5)
+    if i < 10:
+        print(f'diff saidas-esperadas/{saida} saidas/{saida}')
+        os.system(f'diff saidas-esperadas/{saida} saidas/{saida}')
+        time.sleep(0.5)
 
-    saida = f'saida_0{i}.txt'
+        saida = f'saida_0{i}.txt'
+    else:
+        print(f'diff saidas-esperadas/{saida} saidas/{saida}')
+        os.system(f'diff saidas-esperadas/{saida} saidas/{saida}')
+        time.sleep(0.5)
+
+        saida = f'saida_{i}.txt'
 
 print('diff saidas-esperadas/saida_foda.txt saidas/saida_foda.txt')
 os.system('diff saidas-esperadas/saida_foda.txt saidas/saida_foda.txt')
