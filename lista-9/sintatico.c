@@ -5,7 +5,7 @@
 
 enum errorCode {ERROR_EAT, ERROR_S, ERROR_L, ERROR_E};
 
-bool first = true, breakLine = false;
+bool first = true, breakLine = false, errorBool = false;
 
 void advance() {
     do {
@@ -245,7 +245,6 @@ void E() {
 int main() {
     errorBool = false;
     token = getToken();
-    char c;
 
     do {
         S();

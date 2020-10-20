@@ -5,8 +5,6 @@ enum TOKEN {IF = 1, THEN, ELSE, BEGIN, END, PRINT, SEMI, NUM, EQ, BL};
 
 int token;
 
-bool errorBool;
-
 int getToken();
 
 #endif

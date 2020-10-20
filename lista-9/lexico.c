@@ -143,7 +143,7 @@ int getToken() {
         }
 
         currentState = nextState;
-        if(automaton[currentState][27] == 1) {
+        if(automaton[currentState][28] == 1) {
             lastFinal = currentState;
         }
     }
