@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -std=c99
 LIBS = 
 
-EXEC_NAME = ex4.out
+EXEC_NAME = l10e4
 
 FONT_NAME = lexico.o sintatico.o
 
