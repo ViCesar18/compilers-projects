@@ -8,7 +8,7 @@ EXEC_NAME = l14e1
 LEXICO = lexico.l
 SINTATICO = sintatico.y
 
-$(EXEC_NAME): $(LEXICO)
+$(EXEC_NAME): $(LEXICO) $(SINTATICO)
 	$(FLEX) $(LEXICO)
 	$(BISON) -d $(SINTATICO)
 	$(CC) lex.yy.c sintatico.tab.c -o $(EXEC_NAME)

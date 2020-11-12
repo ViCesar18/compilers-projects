@@ -2,20 +2,29 @@
 
 %{
     #include "sintatico.tab.h"
+    #include "stdbool.h"
 
-    int column_counter = 1;
+    int column_counter = 0;
+
+    int end_of_program = 0;
+
+    char *wrong_chars;
+
+    int wrong_chars_count = 0;
+
+    bool lexical_error = false;
 %}
 
 %%
 
 "+" {
     column_counter += strlen(yytext);
-    return PLUS;
+    return ADD;
 }
 
 "-" {
     column_counter += strlen(yytext);
-    return MINUS;
+    return SUB;
 }
 
 "*" {
@@ -104,8 +113,17 @@
 
 . {
     column_counter++;
-    printf("Caracter Misterioso: %c\n", *yytext);
-    exit(0);
+    //printf("Erro de sintaxe na coluna [%d]: %c\n", column_counter, yytext[0]);
+
+    wrong_chars[wrong_chars_count] = yytext[0];
+    wrong_chars_count++;
+
+    lexical_error = true;
+}
+
+<<EOF>> {
+    end_of_program = 1;
+    return EOL;
 }
 
 %%
