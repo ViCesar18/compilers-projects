@@ -1,0 +1,250 @@
+Caractere(s) invalido(s) -> [$]
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [,]
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [5]: emwkvhzwzjualvanw
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [?]
+Caractere(s) invalido(s) -> [,,?,&]
+Caractere(s) invalido(s) -> [@,=]
+Caractere(s) invalido(s) -> [?,&,?]
+Caractere(s) invalido(s) -> [$]
+Erro de sintaxe na coluna [13938]: cos
+Erro de sintaxe na coluna [257]: )
+Caractere(s) invalido(s) -> [?,,]
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [14945]: *
+Erro de sintaxe na coluna [6162]: /
+Erro de sintaxe na coluna [18137]: -
+Erro de sintaxe na coluna [16537]: abs
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [?]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [44101]: +
+Caractere(s) invalido(s) -> [$]
+Erro de sintaxe na coluna [2069]: %
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [|]
+Caractere(s) invalido(s) -> [#]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [7482]: ^
+Erro de sintaxe na coluna [17431]: tan
+Erro de sintaxe na coluna [19473]: )
+Caractere(s) invalido(s) -> [,,#,|,@]
+Caractere(s) invalido(s) -> [?,@,&,?]
+Erro de sintaxe na coluna [1]: *
+Caractere(s) invalido(s) -> [?]
+Caractere(s) invalido(s) -> [#]
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [$,=]
+Caractere(s) invalido(s) -> [$,?]
+Erro de sintaxe na coluna [31776]: 725999
+Caractere(s) invalido(s) -> [?]
+Caractere(s) invalido(s) -> [?]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [,,?,!]
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [=]
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [|,|]
+Caractere(s) invalido(s) -> [=]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [13266]: tan
+Caractere(s) invalido(s) -> [,]
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [8469]: *
+Caractere(s) invalido(s) -> [$]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [&]
+Erro de sintaxe na coluna [31629]: tan
+Caractere(s) invalido(s) -> [#]
+Caractere(s) invalido(s) -> [,,=]
+Caractere(s) invalido(s) -> [?,$]
+Caractere(s) invalido(s) -> [=]
+Caractere(s) invalido(s) -> [&]
+Caractere(s) invalido(s) -> [=]
+Caractere(s) invalido(s) -> [,,=]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [?]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [?]
+Caractere(s) invalido(s) -> [&]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [29137]: %
+Erro de sintaxe na coluna [3264]: 4822
+Caractere(s) invalido(s) -> [#]
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [?]
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [,]
+Caractere(s) invalido(s) -> [|,,,!]
+Caractere(s) invalido(s) -> [=]
+Erro de sintaxe na coluna [7803]: ^
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [11781]: )
+Caractere(s) invalido(s) -> [$]
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [@]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [14803]: buxnkjbumvumy038
+Caractere(s) invalido(s) -> [?]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [@]
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [?]
+Erro de sintaxe na coluna [28419]: %
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [22922]: %
+Caractere(s) invalido(s) -> [?]
+Erro de sintaxe na coluna [15935]: /
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [5221]: ^
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [22322]: ^
+Caractere(s) invalido(s) -> [#]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [#,,]
+Caractere(s) invalido(s) -> [!]
+Caractere(s) invalido(s) -> [!]
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [18927]: )
+Caractere(s) invalido(s) -> [|]
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [,]
+Erro de sintaxe na coluna [33336]: /
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [19474]: (
+Erro de sintaxe na coluna [5318]: .323678
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [!]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [2091]: +
+Caractere(s) invalido(s) -> [|]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [31669]: %
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [@]
+Caractere(s) invalido(s) -> [!]
+Caractere(s) invalido(s) -> [&,=,@,$,$]
+Erro de sintaxe na coluna [10545]: *
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [14225]: tan
+Erro de sintaxe na coluna [650]: biucczfqohtr
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [18646]: -
+Caractere(s) invalido(s) -> [?]
+Erro de sintaxe na coluna [9154]: (
+Erro de sintaxe na coluna [1918]: ^
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [?,@,,]
+Erro de sintaxe na coluna [2727]: ^
+Erro de sintaxe na coluna [27114]: ^
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [26342]: (
+Caractere(s) invalido(s) -> [@]
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [?]
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [17819]: )
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [,,?,|]
+Erro de sintaxe na coluna [12979]: /
+Caractere(s) invalido(s) -> [?,!]
+Caractere(s) invalido(s) -> [?,|]
+Caractere(s) invalido(s) -> [?]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [20396]: sen
+Erro de sintaxe na coluna [219]: )
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [15636]: ^
+Caractere(s) invalido(s) -> [|,|]
+Erro de sintaxe na coluna [4265]: *
+Erro de sintaxe na coluna [687]: (
+Caractere(s) invalido(s) -> [,,@]
+Erro de sintaxe na coluna [49560]: 83
+Erro de sintaxe na coluna [1981]: 66836.
+Caractere(s) invalido(s) -> [?,@]
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [10987]: (
+Caractere(s) invalido(s) -> [?]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [!]
+Caractere(s) invalido(s) -> [&]
+Erro de sintaxe na coluna [2824]: %
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [?]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [3648]: *
+Erro de sintaxe na coluna [20978]: 1
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [15975]: *
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [|,,]
+Erro de sintaxe na coluna [11932]: nntrsvezkvzvaujnti1
+EXPRESSAO CORRETA
+Caractere(s) invalido(s) -> [#,|]
+Caractere(s) invalido(s) -> [$]
+Erro de sintaxe na coluna [10495]: *
+Erro de sintaxe na coluna [1]: *
+Caractere(s) invalido(s) -> [,]
+Caractere(s) invalido(s) -> [$,@,,]
+Erro de sintaxe na coluna [3174]: 3
+Caractere(s) invalido(s) -> [,]
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [49058]: jdzbpooalfksxg
+Caractere(s) invalido(s) -> [#]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [@,@,|]
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [|,?]
+Erro de sintaxe na coluna [31170]: (
+Caractere(s) invalido(s) -> [?,&,=]
+A expressao terminou de forma inesperada.
+Caractere(s) invalido(s) -> [=]
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [33110]: /
+Caractere(s) invalido(s) -> [&]
+Caractere(s) invalido(s) -> [=]
+Caractere(s) invalido(s) -> [|]
+Erro de sintaxe na coluna [6969]: -
+Caractere(s) invalido(s) -> [@]
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+A expressao terminou de forma inesperada.
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [13599]: /

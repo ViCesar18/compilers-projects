@@ -4,125 +4,124 @@
     #include "sintatico.tab.h"
     #include "stdbool.h"
 
-    int column_counter = 0;
+    unsigned columnCounter = 1;
 
-    int end_of_program = 0;
+    char *wrongChars;
+    int wrongCharsCount = 0;
 
-    char *wrong_chars;
+    bool hasLexicalError = false;
 
-    int wrong_chars_count = 0;
-
-    bool lexical_error = false;
+    bool endOfProgram = false;
 %}
 
 %%
 
 "+" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return ADD;
 }
 
 "-" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return SUB;
 }
 
 "*" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return MUL;
 }
 
 "/" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return DIV;
 }
 
 "^" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return POWER;
 }
 
 "%" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return MODULE;
 }
 
 "(" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return L_PARENT;
 }
 
 ")" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return R_PARENT;
 }
 
 "sen" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return SEN;
 }
 
 "cos" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return COS;
 }
 
 "tan" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return TAN;
 }
 
 "abs" {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return ABS;
 }
 
 [a-z][a-z0-9]* {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return VAR;
 }
 
 [0-9]+ {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return NUM;
 }
 
 [0-9]+"."[0-9]+ {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return NUM;
 }
 
 "."[0-9]+ {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return NUM;
 }
 
 [0-9]+"." {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
     return NUM;
 }
 
 \n {
-    column_counter = 1;
+    columnCounter = 1;
     return EOL;
 }
 
 [ \t] {
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
 }
 
 . {
-    column_counter++;
-    //printf("Erro de sintaxe na coluna [%d]: %c\n", column_counter, yytext[0]);
+    columnCounter++;
+    //printf("Erro de sintaxe na coluna [%d]: %c\n", columnCounter, yytext[0]);
 
-    wrong_chars[wrong_chars_count] = yytext[0];
-    wrong_chars_count++;
+    wrongChars[wrongCharsCount] = yytext[0];
+    wrongCharsCount++;
 
-    lexical_error = true;
+    hasLexicalError = true;
 }
 
 <<EOF>> {
-    end_of_program = 1;
+    endOfProgram = true;
     return EOL;
 }
 

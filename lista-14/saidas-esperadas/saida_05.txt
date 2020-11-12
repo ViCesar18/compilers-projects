@@ -1,0 +1,50 @@
+Erro de sintaxe na coluna [25781]: +
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [10743]: (
+Erro de sintaxe na coluna [16961]: ^
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [8007]: /
+Erro de sintaxe na coluna [1090]: %
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [495]: ^
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [2562]: +
+Erro de sintaxe na coluna [24383]: *
+Erro de sintaxe na coluna [9154]: /
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [2807]: 8232426046
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [3124]: *
+EXPRESSAO CORRETA
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [39]: 87764835010182
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [17788]: /
+Erro de sintaxe na coluna [10654]: 69876223679647.7461348
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [6504]: -
+Erro de sintaxe na coluna [11567]: 8
+Erro de sintaxe na coluna [278]: )
+Erro de sintaxe na coluna [3130]: /
+Erro de sintaxe na coluna [3345]: (
+Erro de sintaxe na coluna [314]: *
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [6490]: /
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [42718]: %
+A expressao terminou de forma inesperada.
+Erro de sintaxe na coluna [20465]: +
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [4623]: /
+Erro de sintaxe na coluna [15358]: /
+Erro de sintaxe na coluna [17888]: %
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [11191]: *
+Erro de sintaxe na coluna [65024]: /
+Erro de sintaxe na coluna [7652]: .432115025
+Erro de sintaxe na coluna [4747]: )
+EXPRESSAO CORRETA
+Erro de sintaxe na coluna [40278]: 10031149239893.18
+EXPRESSAO CORRETA

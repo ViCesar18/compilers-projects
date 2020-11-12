@@ -5,26 +5,21 @@
     #include <stdlib.h>
     
     extern int yylex();
-
     extern char *yytext;
-
-    extern int column_counter;
-
     void yyerror(char const *s);
 
-    bool hasError = false;
-
-    extern int end_of_program;
-
-    extern char *wrong_chars;
-
-    int f_len = 0;
-
-    extern bool lexical_error;
-
-    extern int wrong_chars_count;
-
     bool first = true;
+
+    extern unsigned columnCounter;
+
+    bool hasError = false;
+    extern bool hasLexicalError;
+    char strError[50];
+
+    extern char *wrongChars;
+    extern int wrongCharsCount;
+
+    extern bool endOfProgram;
 %}
 
 %token ADD
@@ -45,9 +40,15 @@
 
 %%
 
-calclist: exp_prime EOL {
-    if(!hasError && !lexical_error) {
-        printf("EXPRESSAO CORRETA\n");
+/*calclist: exp_prime EOL {
+    if(!hasError && !hasLexicalError) {
+        if(first) {
+            printf("EXPRESSAO CORRETA");
+            first = false;
+        }
+        else {
+            printf("\nEXPRESSAO CORRETA");
+        }
     }
     
     return 1;
@@ -64,8 +65,7 @@ exp: signal term                 {}
 ;
 
 exp_prime: exp                   {}
-         | L_PARENT exp R_PARENT {}
-         | L_PARENT R_PARENT     {}
+         | signal L_PARENT exp R_PARENT {}
 ;
 
 term: NUM                             {}
@@ -86,49 +86,82 @@ signal: ADD {}
 ;
 
 st: signal term                   {}
-  | L_PARENT signal term R_PARENT {}
+  | signal L_PARENT signal term R_PARENT {}
+;*/
+
+calclist: exp EOL {
+    if(!hasError && !hasLexicalError) {
+        if(first) {
+            printf("EXPRESSAO CORRETA");
+            first = false;
+        }
+        else {
+            printf("\nEXPRESSAO CORRETA");
+        }
+    }
+    
+    return 1;
+}
+;
+
+exp: factor         {}
+   | exp ADD factor {}
+   | exp SUB factor {}
+;
+
+factor: signal term               {}
+      | factor MUL signal term    {}
+      | factor DIV signal term    {}
+      | factor POWER term         {}
+      | factor MODULE signal term {}
+;
+
+term: NUM                       {}
+    | VAR                       {}
+    | L_PARENT exp R_PARENT     {}
+    | SEN L_PARENT exp R_PARENT {}
+    | COS L_PARENT exp R_PARENT {}
+    | TAN L_PARENT exp R_PARENT {}
+    | ABS L_PARENT exp R_PARENT {}
+;
+
+signal: ADD {}
+      | SUB {}
+      |     {}
 ;
 
 %%
 
 void yyerror(char const *s) {
-    if(!hasError) {
-        if(strcmp(yytext, "\n")) {
-            if(first) {
-                printf("Erro de sintaxe na coluna [%d]: %s", column_counter - 1, yytext);
-                first = false;
-            }
-            else {
-                printf("\nErro de sintaxe na coluna [%d]: %s", column_counter - 1, yytext);
-            }
+    if(!hasError && !hasLexicalError) {
+        unsigned columnNumber = columnCounter - strlen(yytext);
+
+        if(yytext[0] != '\n' && yytext[0] != '\0') {
+            sprintf(strError, "Erro de sintaxe na coluna [%u]: %s", columnNumber, yytext);
         }
         else {
-            if(first) {
-                printf("A expressao terminou de forma inesperada.");
-                first = false;
-            }
-            else {
-                printf("\nA expressao terminou de forma inesperada.");
-            }
+            sprintf(strError, "A expressao terminou de forma inesperada.");
         }
+
         hasError = true;
     }
 }
 
 int main() {
     fseek(stdin, 0, SEEK_END);
-    f_len = ftell(stdin);
+    int fLen = ftell(stdin);
     rewind(stdin);
 
-    wrong_chars = (char *) calloc(f_len, sizeof(char));
+    wrongChars = (char *) calloc(fLen, sizeof(char));
 
-    while(!end_of_program) {
+    while(!endOfProgram) {
         yyparse();
 
-        while(yylex() != EOL);  //Avança até a quebra de linha
-        //yylex();
+        if(yytext[0] != '\n') {
+            while(yylex() != EOL);  //Avança até a quebra de linha
+        }
 
-        if(lexical_error) {
+        if(hasLexicalError) {
             if(first) {
                 printf("Caractere(s) invalido(s) -> [");
                 first = false;
@@ -136,19 +169,23 @@ int main() {
             else {
                 printf("\nCaractere(s) invalido(s) -> [");
             }
-            for(int i = 0; i < wrong_chars_count; i++) {
-                if(wrong_chars[i + 1] == '\0') {
-                    printf("%c", wrong_chars[i]);
-                }
-                else {
-                    printf("%c,", wrong_chars[i]);
-                }
+            for(int i = 0; i < wrongCharsCount - 1; i++) {
+                printf("%c,", wrongChars[i]);
             }
-            printf("]\n");
+            printf("%c]", wrongChars[wrongCharsCount - 1]);
 
-            memset(wrong_chars, 0, sizeof(wrong_chars));
-            wrong_chars_count = 0;
-            lexical_error = false;
+            memset(wrongChars, 0, sizeof(wrongChars));
+            wrongCharsCount = 0;
+            hasLexicalError = false;
+        }
+        else if(hasError) {
+            if(first) {
+                printf("%s", strError);
+                first = false;
+            }
+            else {
+                printf("\n%s", strError);
+            }
         }
 
         hasError = false;

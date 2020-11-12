@@ -5,10 +5,6 @@ pascal
 
 l14e1
 
-#Arquivos de teste
-*.txt
-*.pas
-
 #Códigos Gerados pelo LEX
 */lex.yy.c
 
