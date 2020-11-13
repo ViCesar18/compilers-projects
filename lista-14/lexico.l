@@ -2,7 +2,7 @@
 
 %{
     #include "sintatico.tab.h"
-    #include "stdbool.h"
+    #include <stdbool.h>
 
     unsigned columnCounter = 1;
 

@@ -38,56 +38,9 @@
 %token VAR
 %token EOL
 
+%start calclist
+
 %%
-
-/*calclist: exp_prime EOL {
-    if(!hasError && !hasLexicalError) {
-        if(first) {
-            printf("EXPRESSAO CORRETA");
-            first = false;
-        }
-        else {
-            printf("\nEXPRESSAO CORRETA");
-        }
-    }
-    
-    return 1;
-}
-;
-
-exp: signal term                 {}
-   | exp_prime ADD st            {}
-   | exp_prime SUB st            {}
-   | exp_prime MUL st            {}
-   | exp_prime DIV st            {}
-   | exp_prime POWER term_prime  {}
-   | exp_prime MODULE st         {}
-;
-
-exp_prime: exp                   {}
-         | signal L_PARENT exp R_PARENT {}
-;
-
-term: NUM                             {}
-    | VAR                             {}
-    | SEN L_PARENT exp_prime R_PARENT {}
-    | COS L_PARENT exp_prime R_PARENT {}
-    | TAN L_PARENT exp_prime R_PARENT {}
-    | ABS L_PARENT exp_prime R_PARENT {}
-;
-
-term_prime: term                   {}
-          | L_PARENT term R_PARENT {}
-;
-
-signal: ADD {}
-      | SUB {}
-      |     {}
-;
-
-st: signal term                   {}
-  | signal L_PARENT signal term R_PARENT {}
-;*/
 
 calclist: exp EOL {
     if(!hasError && !hasLexicalError) {
