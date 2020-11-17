@@ -82,6 +82,7 @@ S: programa EOP {
 //Programa
 programa: declaracoes programa {}
         | funcao programa      {}
+        |                      {}
 ;
 
 //Declarações
@@ -106,7 +107,7 @@ declaracao_variaveis_double_prime: COMMA declaracao_variaveis_prime {}
 ;
 
 //Declaração de Protótipos
-declaracao_prototipos: loop_ponteiro IDENTIFIER parametros SEMICOLON {}
+declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {}
 ;
 
 //Parâmetros
@@ -178,105 +179,72 @@ expressao_atribuicao: expressao_condicional                                     
                     | expressao_unaria expressao_atribuicao_prime expressao_atribuicao {}
 ;
 
-expressao_atribuicao_prime: EQUAL        {}
+expressao_atribuicao_prime: ASSIGN       {}
                           | ADD_ASSIGN   {}
                           | MINUS_ASSIGN {}
 ;
 
 //Experssão Condicional
-expressao_condicional: expressao_or_logico expressao_condicional_prime {}
-;
-
-expressao_condicional_prime: TERNARY_CONDITIONAL expressao COLON expressao_condicional {}
-                           |                                                           {}
+expressao_condicional: expressao_or_logico {}
+                     | expressao_or_logico TERNARY_CONDITIONAL expressao COLON expressao_condicional
 ;
 
 //Expressão OR Lógico
-expressao_or_logico: expressao_and_logico expressao_or_logico_prime {}
-;
-
-expressao_or_logico_prime: LOGICAL_OR expressao_or_logico {}
-                         |                                {}
+expressao_or_logico: expressao_and_logico                                {}
+                   | expressao_or_logico LOGICAL_OR expressao_and_logico {}
 ;
 
 //Expressão AND Lógico
-expressao_and_logico: expressao_or expressao_and_logico_prime {}
-;
-
-expressao_and_logico_prime: LOGICAL_AND expressao_and_logico {}
-                          |                                  {}
+expressao_and_logico: expressao_or                                  {}
+                    | expressao_and_logico LOGICAL_AND expressao_or {}
 ;
 
 //Expressão OR
-expressao_or: expressao_xor expressao_or_prime {}
-;
-
-expressao_or_prime: BITWISE_OR expressao_or {}
-                  |                         {}
+expressao_or: expressao_xor                         {}
+            | expressao_or BITWISE_OR expressao_xor {}
 ;
 
 //Expressão XOR
-expressao_xor: expressao_and expressao_xor_prime {}
-;
-
-expressao_xor_prime: BITWISE_XOR expressao_xor {}
-                   |                           {}
+expressao_xor: expressao_and                           {}
+             | expressao_xor BITWISE_XOR expressao_and {}
 ;
 
 //Expressão AND
-expressao_and: expressao_igualdade expressao_and_prime {}
-;
-
-expressao_and_prime: BITWISE_AND expressao_and {}
-                   |                           {}
+expressao_and: expressao_igualdade                           {}
+             | expressao_and BITWISE_AND expressao_igualdade {}
 ;
 
 //Expressão de Igualdade
-expressao_igualdade: expressao_relacional expressao_igualdade_prime {}
-;
-
-expressao_igualdade_prime: EQUAL expressao_igualdade     {}
-                         | NOT_EQUAL expressao_igualdade {}
-                         |                               {}
+expressao_igualdade: expressao_relacional                               {}
+                   | expressao_igualdade EQUAL expressao_relacional     {}
+                   | expressao_igualdade NOT_EQUAL expressao_relacional {}
 ;
 
 //Expressão Relacional
-expressao_relacional: expressao_shift expressao_relacional_prime {}
-;
-
-expressao_relacional_prime: LESS_THAN expressao_relacional     {}
-                          | LESS_EQUAL expressao_relacional    {}
-                          | GREATER_THAN expressao_relacional  {}
-                          | GREATER_EQUAL expressao_relacional {}
-                          |                                    {}
+expressao_relacional: expressao_shift                                    {}
+                    | expressao_relacional LESS_THAN expressao_shift     {}
+                    | expressao_relacional LESS_EQUAL expressao_shift    {}
+                    | expressao_relacional GREATER_THAN expressao_shift  {}
+                    | expressao_relacional GREATER_EQUAL expressao_shift {}
 ;
 
 //Expressão Shift
-expressao_shift: expressao_aditiva expressao_shift_prime {}
-;
-
-expressao_shift_prime: L_SHIFT expressao_shift {}
-                     | R_SHIFT expressao_shift {}
-                     |                         {}
+expressao_shift: expressao_aditiva                         {}
+               | expressao_shift L_SHIFT expressao_aditiva {}
+               | expressao_shift R_SHIFT expressao_aditiva {}
 ;
 
 //Expressão Aditiva
-expressao_aditiva: expressao_multiplicativa expressao_aditiva_prime {}
-;
-
-expressao_aditiva_prime: PLUS expressao_aditiva  {}
-                       | MINUS expressao_aditiva {}
-                       |                         {}
+expressao_aditiva: expressao_multiplicativa                         {}
+                 | expressao_aditiva PLUS expressao_multiplicativa  {}
+                 | expressao_aditiva MINUS expressao_multiplicativa {}
 ;
 
 //Expressão Multiplicativa
-expressao_multiplicativa: expressao_cast expressao_multiplicativa_prime {}
-;
-
-expressao_multiplicativa_prime: MULTIPLY expressao_multiplicativa  {}
-                              | DIV expressao_multiplicativa       {}
-                              | REMAINDER expressao_multiplicativa {}
-                              |                                    {}
+expressao_multiplicativa: expressao_cast                                    {}
+                        | expressao_multiplicativa MULTIPLY expressao_cast  {}
+                        | expressao_multiplicativa DIV expressao_cast       {}
+                        | expressao_multiplicativa REMAINDER expressao_cast {}
 ;
 
 //Expressão Cast
