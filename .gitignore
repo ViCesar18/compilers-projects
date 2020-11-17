@@ -4,6 +4,8 @@
 pascal
 
 l14e1
+lexico
+sintatico
 
 #Códigos Gerados pelo LEX
 */lex.yy.c
