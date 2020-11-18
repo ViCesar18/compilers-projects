@@ -16,5 +16,6 @@ $(EXEC_NAME): $(LEXICO) $(SINTATICO)
 clean:
 	rm -f lex.yy.c
 	rm -f sintatico.tab.c
-	rm -f sintatico.tab.y
+	rm -f sintatico.tab.h
+	rm -f sintatico.zip
 	rm -f $(EXEC_NAME)

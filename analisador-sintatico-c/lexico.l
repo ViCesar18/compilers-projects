@@ -4,12 +4,14 @@
     #include "sintatico.tab.h"
     #include <stdbool.h>
 
-    int line_counter = 1;
-    int column_counter = 1;
-    int comment_start_line = 0;
-    int comment_start_column = 0;
+    unsigned lineCounter = 1;
+    unsigned columnCounter = 1;
+    unsigned commentStartLine = 0;
+    unsigned commentStartColumn = 0;
 
-    bool first = true;
+    char *lineError;
+
+    bool hasSyntaxError = false;
 %}
 
 %x string
@@ -20,580 +22,545 @@
 %%
 
 "void" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return VOID;
 }
 
 "int" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return INT;
 }
 
 "char" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return CHAR;
 }
 
 "return" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return RETURN;
 }
 
 "break" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return BREAK;
 }
 
 "switch" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return SWITCH;
 }
 
 "case" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
     
     return CASE;
 }
 
 "default" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return DEFAULT;
 }
 
 "do" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return DO;
 }
 
 "while" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return WHILE;
 }
 "for" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return FOR;
 }
 
 "if" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += 2;
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return IF;
 }
 
 "else" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return ELSE;
 }
 
 "typedef" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return TYPEDEF;
 }
 
 "struct" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return STRUCT;
 }
 
 "+" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return PLUS;
 }
 "-" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return MINUS;
 }
 
 "*" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return MULTIPLY;
 }
 
 "/" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return DIV;
 }
 "%" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return REMAINDER;
 }
 
 "++" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return INC;
 }
 
 "--" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return DEC;
 }
 
 "&" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return BITWISE_AND;
 }
 "|" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return BITWISE_OR;
 }
 
 "~" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return BITWISE_NOT;
 }
 
 "^" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return BITWISE_XOR;
 }
 
 "!" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return NOT;
 }
 
 "&&" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return LOGICAL_AND;
 }
 
 "||" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return LOGICAL_OR;
 }
 
 "==" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return EQUAL;
 }
 
 "!=" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return NOT_EQUAL;
 }
 
 "<" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return LESS_THAN;
 }
 
 ">" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return GREATER_THAN;
 }
 
 "<=" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return LESS_EQUAL;
 }
 
 ">=" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return GREATER_EQUAL;
 }
 
 ">>" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return R_SHIFT;
 }
 
 "<<" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return L_SHIFT;
 }
 
 "=" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return ASSIGN;
 }
 
 "+=" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return ADD_ASSIGN;
 }
 
 "-=" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return MINUS_ASSIGN;
 }
 
 ";" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return SEMICOLON;
 }
 "," {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return COMMA;
 }
 
 ":" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return COLON;
 }
 
 "(" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter++;
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return L_PAREN;
 }
 ")" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return R_PAREN;
 }
 
 "{" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return L_CURLY_BRACKET;
 }
 
 "}" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return R_CURLY_BRACKET;
 }
 
 "[" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return L_SQUARE_BRACKET;
 }
 
 "]" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return R_SQUARE_BRACKET;
 }
 
 "?" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return TERNARY_CONDITIONAL;
 }
 
 "#" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return NUMBER_SIGN;
 }
 
 "->" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return POINTER;
 }
 
 "printf" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return PRINTF;
 }
 
 "scanf" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return SCANF;
 }
 
 "define" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return DEFINE;
 }
 
 "exit" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return EXIT;
 }
 
 [_a-zA-Z][_a-zA-Z0-9]* {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return IDENTIFIER;
 }
 
 0|[1-9][0-9]* {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return NUM_INTEGER;
 }
 
 0[0-7]+ {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return NUM_OCTAL;
 }
 
 ("0x"|"0X")[0-9a-fA-F]+ {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return NUM_HEXA;
 }
 
 \" {
     BEGIN(string);
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 }
 
 \"\" {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return STRING;  //String vazia
 }
 
 <string>([^"]|\\\")* {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return STRING;
 }
 <string>\" {
     BEGIN(INITIAL);
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 }
 
 \' {
     BEGIN(character);
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 }
 
-<character>\\?[^\'] {
-    if(!first) printf("\n");
-    first = false;
-    column_counter += strlen(yytext);
+<character>\\?[^\']|\\\' {
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 
     return CHARACTER;
 }
-    
-<character>[^\']* {}
 
 <character>\' {
     BEGIN(INITIAL);
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 }
 
 "/*" {
     BEGIN(comment);
-    comment_start_column = column_counter;
-    comment_start_line = line_counter;
-    column_counter += strlen(yytext);
+    commentStartColumn = columnCounter;
+    commentStartLine = lineCounter;
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 }
 
 <comment>\n {
-    line_counter++;
-    column_counter = 1;
+    lineCounter++;
+    columnCounter = 1;
+
+    if(!hasSyntaxError) {
+        memset(lineError, 0, sizeof(lineError));
+    }
+    else {
+        return EOL;
+    }
 }
 
 <comment>"*/" {
     BEGIN(INITIAL);
-    column_counter += strlen(yytext);
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
 }
 
-<comment>.  {}
+<comment>.  {
+    columnCounter += strlen(yytext);
+    strcat(lineError, yytext);
+}
 
 <comment><<EOF>> {
-    if(!first) printf("\n");
-    first = false;
-    printf("error:lexical:%d:%d: unterminated comment", comment_start_line, comment_start_column);
-
-    return EOP;
+    printf("error:lexical:%u:%u: unterminated comment", commentStartLine, commentStartColumn);
+    exit(1);
 }
 
 "//" {
     BEGIN(linecomment);
-    column_counter += strlen(yytext);
+    strcat(lineError, yytext);
 }
 
-<linecomment>.* {
-    column_counter += strlen(yytext);
+<linecomment>. {
+    strcat(lineError, yytext);
 }
 
 <linecomment>\n {
-    line_counter++;
-    column_counter = 1;
+    lineCounter++;
+    columnCounter = 1;
     BEGIN(INITIAL);
+
+    if(!hasSyntaxError) {
+        memset(lineError, 0, sizeof(lineError));
+    }
+    else {
+        return EOL;
+    }
 }
 
 \n  {
-    line_counter++;
-    column_counter = 1;
+    lineCounter++;
+    columnCounter = 1;
+
+    if(!hasSyntaxError) {
+        memset(lineError, 0, sizeof(lineError));
+    }
+    else {
+        return EOL;
+    }
 }
 
 [^ \t] {
-    if(!first) printf("\n");
-    first = false;
-    printf("error:lexical:%d:%d: %s", line_counter, column_counter, yytext);
-    column_counter += strlen(yytext);
+    printf("error:lexical:%u:%u: %s", lineCounter, columnCounter, yytext);
+    exit(1);
 }
 
 . {
-    column_counter++;
+    columnCounter++;
+    strcat(lineError, yytext);
+}
+
+<<EOF>> {
+    return EOP;
 }
 
 %%

@@ -460,14 +460,19 @@
     column_counter += strlen(yytext);
 }
 
-<character>\\?[^\'] {
+\'\' {
+    if(!first) printf("\n");
+    first = false;
+    printf("CHARACTER()");
+    column_counter += strlen(yytext);
+}
+
+<character>\\?[^\']|\\\' {
     if(!first) printf("\n");
     first = false;
     printf("CHARACTER(%s)", yytext);
     column_counter += strlen(yytext);
 }
-    
-<character>[^\']* {}
 
 <character>\' {
     BEGIN(INITIAL);

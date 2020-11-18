@@ -1,9 +1,19 @@
 %{
     #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <stdbool.h>
 
     extern int yylex();
     extern char *yytext;
     void yyerror(char const *s);
+
+    extern unsigned lineCounter;
+    extern unsigned columnCounter;
+
+    extern char *lineError;
+
+    extern bool hasSyntaxError;
 %}
 
 %token VOID
@@ -68,14 +78,17 @@
 %token NUM_HEXA
 %token STRING
 %token CHARACTER
+%token EOL
 %token EOP
 
 %start S
 
 %%
 
-S: programa EOP {
-    printf("PROGRAMA CORRETO!\n");
+S: programa EOP{
+    printf("SUCCESSFUL COMPILATION.");
+
+    exit(1);
 }
 ;
 
@@ -132,7 +145,7 @@ tipo: INT       {}
 ;
 
 //Bloco
-bloco: L_CURLY_BRACKET comandos R_CURLY_BRACKET {}
+bloco: L_CURLY_BRACKET lista_comandos comandos R_CURLY_BRACKET {}
 ;
 
 //Comandos
@@ -144,7 +157,7 @@ comandos: lista_comandos comandos {}
 lista_comandos: DO bloco WHILE L_PAREN expressao R_PAREN SEMICOLON                                                               {}
               | IF L_PAREN expressao R_PAREN bloco lista_comandos_if                                                             {}
               | WHILE L_PAREN expressao R_PAREN bloco                                                                            {}
-              | FOR L_PAREN lista_comandos_exp SEMICOLON lista_comandos_exp SEMICOLON lista_comandos_exp SEMICOLON R_PAREN bloco {}
+              | FOR L_PAREN lista_comandos_exp SEMICOLON lista_comandos_exp SEMICOLON lista_comandos_exp R_PAREN bloco {}
               | PRINTF L_PAREN STRING lista_comandos_print R_PAREN SEMICOLON                                                     {}
               | SCANF L_PAREN STRING COMMA BITWISE_AND IDENTIFIER R_PAREN SEMICOLON                                              {}
               | EXIT L_PAREN expressao R_PAREN SEMICOLON                                                                         {}
@@ -318,10 +331,46 @@ opc_atribuicao: ASSIGN expressao_atribuicao {}
 %%
 
 void yyerror(char const *s) {
+    hasSyntaxError = true;
+    unsigned columnNumber = columnCounter - strlen(yytext);
+    unsigned lineNumber = lineCounter;
+    char strToken[8];
+    int token;
 
+    strcpy(strToken, yytext);
+
+    if(yytext[0] != '\n' && yytext[0] != '\0') {
+        while(true) {
+            token = yylex();
+
+            if(token == EOL || token == EOP) {
+                break;
+            }
+        }  //Avança até a quebra de linha para pegar a linha completa onde ocorreu o erro
+    }
+
+    if(yytext[0] != '\0') {
+        printf("error:syntax:%u:%u: %s\n", lineNumber, columnNumber, strToken);
+    }
+    else {
+        printf("error:syntax:%u:%u: expected declaration or statement at end of input\n", lineNumber, columnNumber);
+    }
+    printf("%s\n", lineError);
+    for(int i = 0; i < columnNumber - 1; i++) {
+        printf(" ");
+    }
+    printf("^");
+
+    exit(1);
 }
 
 int main() {
+    fseek(stdin, 0, SEEK_END);
+    int fSize = ftell(stdin);
+    rewind(stdin);
+
+    lineError = (char *) calloc(fSize, sizeof(char));
+
     yyparse();
 
     return 0;
