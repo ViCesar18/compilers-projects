@@ -145,12 +145,15 @@ tipo: INT       {}
 ;
 
 //Bloco
-bloco: L_CURLY_BRACKET lista_comandos comandos R_CURLY_BRACKET {}
+bloco: L_CURLY_BRACKET comandos R_CURLY_BRACKET {}
 ;
 
 //Comandos
-comandos: lista_comandos comandos {}
-        |                         {}
+comandos: lista_comandos comandos_prime {}
+;
+
+comandos_prime: comandos {}
+              |          {}
 ;
 
 //Lista de Comandos
