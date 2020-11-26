@@ -1,7 +1,9 @@
 #Executáveis
 *.out
 *.exe
+
 pascal
+dcmat
 
 l14e1
 lexico
