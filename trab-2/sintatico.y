@@ -2,6 +2,8 @@
     #include <stdio.h>
     #include <stdbool.h>
     #include <string.h>
+    #include "dcmat.h"
+    #include "arvore.h"
     
     extern int yylex();
     extern char *yytext;
@@ -19,9 +21,31 @@
     extern int wrongCharsCount;
 
     extern bool endOfProgram;
+
+    TreeNode *ARVORE = NULL;
+
+    int mLines = 0;
+    int mColumns = 0;
+    int mColumnsCounter = 1;
+
+    double m[10][10] = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
 %}
 
-%token COMMAND
+%union{
+    TreeNode *arvore;
+    double number;
+}
 
 %token ADD
 %token SUB
@@ -36,52 +60,249 @@
 %token TAN
 %token ABS
 %token NUM
+//%token SIGNAL_NUMBER
 %token VAR
 %token EOL
+%token ERROR
+
+%token SHOW_SETTINGS
+%token RESET_SETTINGS
+%token QUIT
+%token SET_H_VIEW
+%token SET_V_VIEW
+%token SET_AXIS_ON
+%token SET_AXIS_OFF
+%token MATRIX
+%token L_BRACKET
+%token R_BRACKET
+%token COMMA
+%token SHOW_MATRIX
+%token ABOUT
+
+%token COLON
+%token SEMICOLON
+
+%type <arvore> calclist
+%type <arvore> exp
+%type <arvore> factor
+%type <arvore> term
+%type <arvore> signal
+%type <number> NUM
+//%type <number> SIGNAL_NUMBER
 
 %start calclist
 
 %%
 
 calclist: exp EOL {
-    if(!hasError && !hasLexicalError) {
-        if(first) {
-            printf("EXPRESSAO CORRETA");
-            first = false;
-        }
-        else {
-            printf("\nEXPRESSAO CORRETA");
-        }
+    ARVORE = $1;
+
+    if(ARVORE) {
+        printf("\nFunction in RPN format:\n\n");
+        rpnWalk(ARVORE);
+        printf("\n\n");
+        deleteTree(ARVORE);
+    } else {
+        printf("ARVORE is NULL\n");
     }
-    
+
     return 1;
 }
+        | SHOW_SETTINGS SEMICOLON EOL            { showSettings(); return 1; }
+        | RESET_SETTINGS SEMICOLON EOL           { resetSettings(); return 1; }
+        | SET_H_VIEW NUM COLON NUM SEMICOLON EOL { setHView($2, $4); return 1; }
+        | SET_V_VIEW NUM COLON NUM SEMICOLON EOL { setVView($2, $4); return 1; }
+        | SET_AXIS_ON SEMICOLON EOL              { setAxis(true); return 1; }
+        | SET_AXIS_OFF SEMICOLON EOL             { setAxis(false); return 1; }
+        | MATRIX L_BRACKET matrix R_BRACKET SEMICOLON EOL {
+            saveMatrix(m, mLines, mColumns);
+
+            mLines = 0;
+            mColumns = 0;
+            mColumnsCounter = 1;
+
+            memset(m, 0, 10 * 10 * sizeof(double));
+
+            return 1;
+        }
+        | SHOW_MATRIX SEMICOLON EOL              { showMatrix(); return 1; }
+        | ABOUT SEMICOLON EOL                    { about(); return 1; }
+        | ERROR EOL { return 1; }
 ;
 
-exp: factor         {}
-   | exp ADD factor {}
-   | exp SUB factor {}
+matrix
+    : matrix_prime matrix_double_prime {}
 ;
 
-factor: signal term               {}
-      | factor MUL signal term    {}
-      | factor DIV signal term    {}
-      | factor POWER term         {}
-      | factor MODULE signal term {}
+matrix_prime
+    : L_BRACKET NUM matrix_elements R_BRACKET {
+        m[mLines - 1][0] = $2;
+
+        if(mColumns < mColumnsCounter) {
+            mColumns = mColumnsCounter;
+        }
+
+        mColumnsCounter = 1;
+    }
 ;
 
-term: NUM                       {}
-    | VAR                       {}
-    | L_PARENT exp R_PARENT     {}
-    | SEN L_PARENT exp R_PARENT {}
-    | COS L_PARENT exp R_PARENT {}
-    | TAN L_PARENT exp R_PARENT {}
-    | ABS L_PARENT exp R_PARENT {}
+matrix_elements
+    : COMMA NUM matrix_elements {
+        m[mLines - 1][mColumnsCounter] = $2;
+        mColumnsCounter++;
+    }
+    | %empty {
+        mLines++;
+    }
 ;
 
-signal: ADD {}
-      | SUB {}
-      |     {}
+matrix_double_prime
+    : COMMA matrix {}
+    | %empty {}
+
+exp
+    : factor         {
+        $$ = $1;
+    }
+    | exp ADD factor {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = ADD;
+        aux->left = $1;
+        aux->right = $3;
+        $$ = aux;
+    }
+    | exp SUB factor {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = SUB;
+        aux->left = $1;
+        aux->right = $3;
+        $$ = aux;
+    }
+;
+
+factor
+    : signal term {
+        if($1 != NULL && $1->nodeType == SUB) {
+            $2->value *= -1;
+        }
+        $$ = $2;
+    }
+    | factor MUL signal term {
+        if($3 != NULL && $3->nodeType == SUB) {
+            $4->value *= -1;
+        }
+
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = MUL;
+        aux->left = $1;
+        aux ->right = $4;
+        $$ = aux;
+    }
+    | factor DIV signal term {
+        if($3 != NULL && $3->nodeType == SUB) {
+            $4->value *= -1;
+        }
+
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = DIV;
+        aux->left = $1;
+        aux ->right = $4;
+        $$ = aux;
+    }
+    | factor POWER term {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = POWER;
+        aux->left = $1;
+        aux ->right = $3;
+        $$ = aux;
+    }
+    | factor MODULE signal term {
+        if($3 != NULL && $3->nodeType == SUB) {
+            $4->value *= -1;
+        }
+
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = MODULE;
+        aux->left = $1;
+        aux ->right = $4;
+        $$ = aux;
+    }
+;
+
+term
+    : NUM {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = NUM;
+        aux->value = (double) $1;
+        aux->left = NULL;
+        aux->right = NULL;
+        $$ = (TreeNode *) aux;
+    }
+    | VAR {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = VAR;
+        aux->value = 1;
+        aux->left = NULL;
+        aux->right = NULL;
+        $$ = aux;
+    }
+    | L_PARENT exp R_PARENT {
+        $$ = $2;
+    }
+    | SEN L_PARENT exp R_PARENT {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = SEN;
+        aux->value = 1;
+        aux->left = NULL;
+        aux->right = $3;
+        $$ = aux;
+    }
+    | COS L_PARENT exp R_PARENT {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = COS;
+        aux->value = 1;
+        aux->left = NULL;
+        aux->right = $3;
+        $$ = aux;
+    }
+    | TAN L_PARENT exp R_PARENT {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = TAN;
+        aux->value = 1;
+        aux->left = NULL;
+        aux->right = $3;
+        $$ = aux;
+    }
+    | ABS L_PARENT exp R_PARENT {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = ABS;
+        aux->value = 1;
+        aux->left = NULL;
+        aux->right = $3;
+        $$ = aux;
+    }
+;
+
+signal
+    : ADD {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = ADD;
+        aux->value = 0;
+        aux->left = NULL;
+        aux->right = NULL;
+        $$ = aux;
+    }
+    | SUB {
+        TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
+        aux->nodeType = SUB;
+        aux->value = 0;
+        aux->left = NULL;
+        aux->right = NULL;
+        $$ = aux;
+    }
+    | %empty {
+        $$ = NULL;
+    }
 ;
 
 %%

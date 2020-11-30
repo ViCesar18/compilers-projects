@@ -8,10 +8,10 @@ EXEC_NAME = dcmat
 LEXICO = lexico.l
 SINTATICO = sintatico.y
 
-$(EXEC_NAME): dcmat.c $(LEXICO) $(SINTATICO)
+$(EXEC_NAME): dcmat.c arvore.c $(LEXICO) $(SINTATICO)
 	$(FLEX) $(LEXICO)
 	$(BISON) -d $(SINTATICO)
-	$(CC) dcmat.c lex.yy.c sintatico.tab.c -o $(EXEC_NAME)
+	$(CC) dcmat.c arvore.c lex.yy.c sintatico.tab.c -o $(EXEC_NAME)
 
 clean:
 	rm -f lex.yy.c

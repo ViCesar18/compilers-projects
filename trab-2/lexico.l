@@ -1,8 +1,9 @@
 %option noyywrap
 
 %{
-    #include "sintatico.tab.h"
     #include <stdbool.h>
+    #include "arvore.h"
+    #include "sintatico.tab.h"
 
     unsigned columnCounter = 1;
 
@@ -16,17 +17,35 @@
 
 %%
 
-"show settings;" { return COMMAND; }
+"show settings" { return SHOW_SETTINGS; }
 
-"reset settings;" { return COMMAND; }
+"reset settings" { return RESET_SETTINGS; }
 
-"quit" { return COMMAND; }
+"quit" { return QUIT; }
 
-"set h_view" { return COMMAND; }
+"set h_view" { return SET_H_VIEW; }
 
-":" { return COMMAND; }
+"set v_view" { return SET_V_VIEW; }
 
-";" { return COMMAND; }
+"set axis on" { return SET_AXIS_ON; }
+
+"set axis off" { return SET_AXIS_OFF; }
+
+"matrix = " { return MATRIX; }
+
+"[" { return L_BRACKET; }
+
+"]" { return R_BRACKET; }
+
+"," { return COMMA; }
+
+"show matrix" { return SHOW_MATRIX; }
+
+"about" { return ABOUT; }
+
+":" { return COLON; }
+
+";" { return SEMICOLON; }
 
 "+" {
     columnCounter += strlen(yytext);
@@ -95,11 +114,17 @@
 
 [0-9]+ {
     columnCounter += strlen(yytext);
+
+    yylval.number = atof(yytext);
+
     return NUM;
 }
 
 [0-9]+"."[0-9]+ {
     columnCounter += strlen(yytext);
+
+    yylval.number = atof(yytext);
+
     return NUM;
 }
 
@@ -114,12 +139,12 @@
 
 . {
     columnCounter++;
-    //printf("Erro de sintaxe na coluna [%d]: %c\n", columnCounter, yytext[0]);
 
-    wrongChars[wrongCharsCount] = yytext[0];
-    wrongCharsCount++;
+    printf("Simbolo Invalido -> %c\n\n", yytext[0]);
 
     hasLexicalError = true;
+
+    return ERROR;
 }
 
 <<EOF>> {

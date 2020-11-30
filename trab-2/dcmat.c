@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "arvore.h"
 #include "sintatico.tab.h"
 
 extern int yylex();
@@ -14,6 +15,10 @@ double vViewHi = 3.5;
 
 bool drawAxis = true;
 bool connectDots = false;
+
+double matrix[10][10];
+int matrixLines;
+int matrixColumns;
 
 void showSettings() {
     printf("\nh_view_lo: %lf\n", hViewLo);
@@ -46,50 +51,77 @@ void resetSettings() {
     connectDots = false;
 }
 
-void setHView() {
-    bool negative = false;
-
-    yylex();    //Pega o primeiro número ou o menos
-    if(!strcmp(yytext, "-")) {
-        yylex();    //Pega o segundo número caso tenha vindo o menos
-        negative = true;
+void setHView(double newLoValue, double newHiValue) {
+    if(newLoValue < newHiValue) {
+        hViewLo = newLoValue;
+        hViewHi = newHiValue;
+    } else {
+        printf("\nERROR: h_view_lo must be smaller than h_view_hi\n\n");
     }
-    hViewLo = atof(yytext);
-    hViewLo = negative ? hViewLo * -1 : hViewLo;
+}
 
-    negative = false;
-    
-    yylex();    //Pega o dois pontos
-    yylex();    //Pega o segundo número ou o menos
-    if(!strcmp(yytext, "-")) {
-        yylex();    //Pega o segundo número caso tenha vindo o menos
-        negative = true;
+void setVView(double newLoValue, double newHiValue) {
+    if(newLoValue < newHiValue) {
+        vViewLo = newLoValue;
+        vViewHi = newHiValue;
+    } else {
+        printf("\nERROR: v_view_lo must be smaller than h_view_hi\n\n");
     }
-    hViewHi = atof(yytext);
-    hViewHi = negative ? hViewHi * -1 : hViewHi;
+}
+
+void setAxis(bool newAxisValue) {
+    drawAxis = newAxisValue;
+}
+
+void saveMatrix(double m[][10], int lines, int columns) {
+    matrixLines = lines;
+    matrixColumns = columns;
+
+    memcpy(matrix, m, 10 * 10 * sizeof(double));
+}
+
+void showMatrix() {
+    //matrix = [ [1, 2], [3, 4, 5, 4], [1] ];
+    //matrix = [ [1, 2], [3, 4, 5, 6], [7, 8], [9] ];
+    //matrix = [ [1, 2], [3, 4, 5, 6
+    int spaces = 12 * matrixColumns + 5;
+
+    printf("\n");
+    printf("+-");
+    for(int i = 0; i < spaces; i++) {
+        printf(" ");
+    }
+    printf("-+\n");
+    for(int i = 0; i < matrixLines; i++) {
+        printf("|  ");
+        for(int j = 0; j < matrixColumns; j++) {
+            printf("%lfe+00 ", matrix[i][j]);
+        }
+        printf(" |\n");
+    }
+    printf("+-");
+    for(int i = 0; i < spaces; i++) {
+        printf(" ");
+    }
+    printf("-+\n\n");
+}
+
+void about() {
+    printf("\n");
+    printf("+--------------------------------------------------+\n");
+    printf("|                                                  |\n");
+    printf("|     VINICIUS CESAR DOS SANTOS - 201800560288     |\n");
+    printf("|                                                  |\n");
+    printf("+--------------------------------------------------+\n");
+    printf("\n\n");
 }
 
 int main() {
-    char command[50];
+    double **matrix;
 
-    do{
+    do {
         printf(">");
-        //fgets(command, sizeof(command), stdin);
-        yylex();
-
-        if(!strcmp(yytext, "show settings;")) {
-            showSettings();
-            yylex();
-        }
-        else if(!strcmp(yytext, "reset settings;")) {
-            resetSettings();
-            yylex();
-        }
-        else if(!strcmp(yytext, "set h_view")) {
-            setHView();
-            yylex();
-            yylex();
-        }
+        yyparse();
     } while(strcmp(yytext, "quit"));
 
     return 0;
