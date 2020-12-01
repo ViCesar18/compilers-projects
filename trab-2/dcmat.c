@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <math.h>
 #include "arvore.h"
 #include "sintatico.tab.h"
 
@@ -19,6 +20,7 @@ bool connectDots = false;
 double matrix[10][10];
 int matrixLines;
 int matrixColumns;
+bool flagInsertMatrix = false;
 
 void showSettings() {
     printf("\nh_view_lo: %lf\n", hViewLo);
@@ -74,36 +76,86 @@ void setAxis(bool newAxisValue) {
 }
 
 void saveMatrix(double m[][10], int lines, int columns) {
-    matrixLines = lines;
-    matrixColumns = columns;
+    if(lines > 10 || columns > 10) {
+        printf("\nERROR: Matrix limits out o boundaries.\n\n");
+    } else {
+        matrixLines = lines;
+        matrixColumns = columns;
 
-    memcpy(matrix, m, 10 * 10 * sizeof(double));
+        memcpy(matrix, m, 10 * 10 * sizeof(double));
+
+        flagInsertMatrix = true;
+    }
 }
 
 void showMatrix() {
-    //matrix = [ [1, 2], [3, 4, 5, 4], [1] ];
-    //matrix = [ [1, 2], [3, 4, 5, 6], [7, 8], [9] ];
-    //matrix = [ [1, 2], [3, 4, 5, 6
-    int spaces = 12 * matrixColumns + 5;
+    if(flagInsertMatrix) {
+        int spaces = 14 * matrixColumns;
 
-    printf("\n");
-    printf("+-");
-    for(int i = 0; i < spaces; i++) {
-        printf(" ");
-    }
-    printf("-+\n");
-    for(int i = 0; i < matrixLines; i++) {
-        printf("|  ");
-        for(int j = 0; j < matrixColumns; j++) {
-            printf("%lfe+00 ", matrix[i][j]);
+        printf("\n");
+        printf("+-");
+        for(int i = 0; i < spaces; i++) {
+            printf(" ");
         }
-        printf(" |\n");
+        printf("-+\n");
+        for(int i = 0; i < matrixLines; i++) {
+            printf("| ");
+            for(int j = 0; j < matrixColumns; j++) {
+                if(matrix[i][j] < 0) {
+                    printf("%e ", matrix[i][j]);
+                } else {
+                    printf(" %e ", matrix[i][j]);
+                }
+            }
+            printf(" |\n");
+        }
+        printf("+-");
+        for(int i = 0; i < spaces; i++) {
+            printf(" ");
+        }
+        printf("-+\n\n");
+    } else {
+        printf("\nNo Matrix defined!\n\n");
     }
-    printf("+-");
-    for(int i = 0; i < spaces; i++) {
-        printf(" ");
+}
+
+double determinantOfMatrix(double mat[10][10], int n) {
+    double det = 0;
+
+    double temp[10][10];
+
+    if(n == 2) {
+        return ((mat[0][0] * mat[1][1]) - (mat[1][0] * mat[0][1]));
     }
-    printf("-+\n\n");
+
+    for(int x = 0; x < n; x++) {
+        int subi = 0;
+        for(int i = 1; i < n; i++) {
+            int subj = 0;
+            for(int j = 0; j < n; j++) {
+                if(j == x) {
+                    continue;
+                }
+
+                temp[subi][subj] = mat[i][j];
+                subj++;
+            }
+            subi++;
+        }
+        det += (pow(-1, x) * mat[0][x] * determinantOfMatrix(temp, n - 1));
+    }
+
+    return det;
+}
+
+void solveDeterminant() {
+    if(matrixLines != matrixColumns) {
+        printf("\nMatrix format incorrect!\n\n");
+    } else {
+        double determinant = determinantOfMatrix(matrix, matrixLines);
+
+        printf("\n%lf\n\n", determinant);
+    }
 }
 
 void about() {

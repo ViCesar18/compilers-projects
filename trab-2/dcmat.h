@@ -22,6 +22,9 @@ void saveMatrix(double m[][10], int lines, int columns);
 //Printa a matriz inserida anteriormente na tela
 void showMatrix();
 
+//Resolve o determinante da matriz inserida e printa na tela
+void solveDeterminant();
+
 //Mostra as informações sobre o desenvolvedor
 void about();
 

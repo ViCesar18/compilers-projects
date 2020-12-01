@@ -2,7 +2,7 @@ FLEX = flex
 BISON = bison
 CC = gcc
 CFLAGS = -std=c99
-LIBS = 
+LIBS = -lm
 
 EXEC_NAME = dcmat
 LEXICO = lexico.l
@@ -11,7 +11,7 @@ SINTATICO = sintatico.y
 $(EXEC_NAME): dcmat.c arvore.c $(LEXICO) $(SINTATICO)
 	$(FLEX) $(LEXICO)
 	$(BISON) -d $(SINTATICO)
-	$(CC) dcmat.c arvore.c lex.yy.c sintatico.tab.c -o $(EXEC_NAME)
+	$(CC) dcmat.c arvore.c lex.yy.c sintatico.tab.c -o $(EXEC_NAME) $(LIBS)
 
 clean:
 	rm -f lex.yy.c

@@ -33,19 +33,21 @@
 
 "matrix = " { return MATRIX; }
 
-"[" { return L_BRACKET; }
-
-"]" { return R_BRACKET; }
-
-"," { return COMMA; }
-
 "show matrix" { return SHOW_MATRIX; }
+
+"solve determinant" { return SOLVE_DETERMINANT; }
 
 "about" { return ABOUT; }
 
 ":" { return COLON; }
 
 ";" { return SEMICOLON; }
+
+"[" { return L_BRACKET; }
+
+"]" { return R_BRACKET; }
+
+"," { return COMMA; }
 
 "+" {
     columnCounter += strlen(yytext);

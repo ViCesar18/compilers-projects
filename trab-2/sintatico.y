@@ -73,14 +73,15 @@
 %token SET_AXIS_ON
 %token SET_AXIS_OFF
 %token MATRIX
-%token L_BRACKET
-%token R_BRACKET
-%token COMMA
 %token SHOW_MATRIX
+%token SOLVE_DETERMINANT;
 %token ABOUT
 
 %token COLON
 %token SEMICOLON
+%token L_BRACKET
+%token R_BRACKET
+%token COMMA
 
 %type <arvore> calclist
 %type <arvore> exp
@@ -126,6 +127,7 @@ calclist: exp EOL {
             return 1;
         }
         | SHOW_MATRIX SEMICOLON EOL              { showMatrix(); return 1; }
+        | SOLVE_DETERMINANT SEMICOLON EOL        { solveDeterminant(); return 1; }
         | ABOUT SEMICOLON EOL                    { about(); return 1; }
         | ERROR EOL { return 1; }
 ;
@@ -135,8 +137,12 @@ matrix
 ;
 
 matrix_prime
-    : L_BRACKET NUM matrix_elements R_BRACKET {
-        m[mLines - 1][0] = $2;
+    : L_BRACKET signal NUM matrix_elements R_BRACKET {
+        if($2 != NULL && $2->nodeType == SUB) {
+            m[mLines - 1][0] = -$3;
+        } else {
+            m[mLines - 1][0] = $3;
+        }
 
         if(mColumns < mColumnsCounter) {
             mColumns = mColumnsCounter;
@@ -147,8 +153,13 @@ matrix_prime
 ;
 
 matrix_elements
-    : COMMA NUM matrix_elements {
-        m[mLines - 1][mColumnsCounter] = $2;
+    : matrix_elements COMMA signal NUM {
+        if($3 != NULL && $3->nodeType == SUB) {
+            m[mLines - 1][mColumnsCounter] = -$4;
+        } else {
+            m[mLines - 1][mColumnsCounter] = $4;
+        }
+
         mColumnsCounter++;
     }
     | %empty {
@@ -183,13 +194,13 @@ exp
 factor
     : signal term {
         if($1 != NULL && $1->nodeType == SUB) {
-            $2->value *= -1;
+            $2->value = -$2->value;
         }
         $$ = $2;
     }
     | factor MUL signal term {
         if($3 != NULL && $3->nodeType == SUB) {
-            $4->value *= -1;
+            $4->value = -$4->value;
         }
 
         TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
@@ -200,7 +211,7 @@ factor
     }
     | factor DIV signal term {
         if($3 != NULL && $3->nodeType == SUB) {
-            $4->value *= -1;
+            $4->value = $4->value;
         }
 
         TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
@@ -218,7 +229,7 @@ factor
     }
     | factor MODULE signal term {
         if($3 != NULL && $3->nodeType == SUB) {
-            $4->value *= -1;
+            $4->value = -$4->value;
         }
 
         TreeNode *aux = (TreeNode *) malloc(sizeof(struct node));
