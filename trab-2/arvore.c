@@ -24,6 +24,10 @@ void rpnWalk(TreeNode *aux) {
                 printf("/ ");
                 break;
             }
+            case POWER: {
+                printf("^ ");
+                break;
+            }
             case MODULE: {
                 printf("%% ");
                 break;
@@ -80,6 +84,9 @@ double calculateExpression(TreeNode *aux, double x) {
             }
             case DIV: {
                 return leftValue / rightValue;
+            }
+            case POWER: {
+                return pow(leftValue, rightValue);
             }
             case MODULE: {
                 return (int) leftValue % (int)rightValue;

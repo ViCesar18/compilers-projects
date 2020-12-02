@@ -89,8 +89,8 @@ void integrate(TreeNode *exp, double limiteInferior, double limiteSuperior) {
     double result = 0;
     double deltaX = (limiteSuperior - limiteInferior) / integralSteps;
 
-    for(int i = 1; i < integralSteps; i++) {
-        double x = deltaX * i;
+    for(int i = 0; i < integralSteps; i++) {
+        double x = deltaX * i + limiteInferior;
 
         result += deltaX * calculateExpression(exp, x);
     }
