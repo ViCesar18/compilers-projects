@@ -60,7 +60,6 @@
 %token TAN
 %token ABS
 %token NUM
-//%token SIGNAL_NUMBER
 %token VAR
 %token EOL
 %token ERROR
@@ -72,6 +71,8 @@
 %token SET_V_VIEW
 %token SET_AXIS_ON
 %token SET_AXIS_OFF
+%token SET_INTEGRAL_STEPS
+%token INTEGRATE
 %token MATRIX
 %token SHOW_MATRIX
 %token SOLVE_DETERMINANT
@@ -90,7 +91,6 @@
 %type <arvore> term
 %type <arvore> signal
 %type <number> NUM
-//%type <number> SIGNAL_NUMBER
 
 %start calclist
 
@@ -116,6 +116,34 @@ calclist: exp EOL {
         | SET_V_VIEW NUM COLON NUM SEMICOLON EOL { setVView($2, $4); return 1; }
         | SET_AXIS_ON SEMICOLON EOL              { setAxis(true); return 1; }
         | SET_AXIS_OFF SEMICOLON EOL             { setAxis(false); return 1; }
+        | SET_INTEGRAL_STEPS signal NUM SEMICOLON EOL   {
+            if($2 != NULL && $2->nodeType == SUB) {
+                setIntegralSteps((int) -$3);
+            } else {
+                setIntegralSteps((int) $3);
+            }
+
+            return 1;
+        }
+        | INTEGRATE L_PARENT signal NUM COLON signal NUM COMMA exp R_PARENT SEMICOLON EOL {
+            double limiteInferior, limiteSuperior;
+
+            if($3 != NULL && $3->nodeType == SUB) {
+                limiteInferior = -$4;
+            } else {
+                limiteInferior = $4;
+            }
+
+            if($6 != NULL && $6->nodeType == SUB) {
+                limiteSuperior = -$7;
+            } else {
+                limiteSuperior = $7;
+            }
+
+            integrate($9, limiteInferior, limiteSuperior);
+
+            return 1;
+        }
         | MATRIX L_BRACKET matrix R_BRACKET SEMICOLON EOL {
             saveMatrix(m, mLines, mColumns);
 

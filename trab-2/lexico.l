@@ -31,6 +31,10 @@
 
 "set axis off" { return SET_AXIS_OFF; }
 
+"set integral_steps" { return SET_INTEGRAL_STEPS; }
+
+"integrate" { return INTEGRATE; }
+
 "matrix = " { return MATRIX; }
 
 "show matrix" { return SHOW_MATRIX; }

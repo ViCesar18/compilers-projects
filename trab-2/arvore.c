@@ -53,11 +53,79 @@ void rpnWalk(TreeNode *aux) {
                 break;
             }
             default: {
-                printf("ERROR: INVALID TYPE ");
+                printf("ERROR: INVALID TYPE");
                 break;
             }
         }
     }
+}
+
+double calculateExpression(TreeNode *aux, double x) {
+    if(aux) {
+        double leftValue, rightValue;
+
+        leftValue = calculateExpression(aux->left, x);
+
+        rightValue = calculateExpression(aux->right, x);
+
+        switch(aux->nodeType) {
+            case ADD: {
+                return leftValue + rightValue;
+            }
+            case SUB: {
+                return leftValue - rightValue;
+            }
+            case MUL: {
+                return leftValue * rightValue;
+            }
+            case DIV: {
+                return leftValue / rightValue;
+            }
+            case MODULE: {
+                return (int) leftValue % (int)rightValue;
+            }
+            case SEN: {
+                if(aux->value > 0) {
+                    return sin(rightValue);
+                } else {
+                    return -sin(rightValue);
+                }
+            }
+            case COS: {
+                if(aux->value > 0) {
+                    return cos(rightValue);
+                } else {
+                    return -cos(rightValue);
+                }
+            }
+            case TAN: {
+                if(aux->value > 0) {
+                    return tan(rightValue);
+                } else {
+                    return -tan(rightValue);
+                }
+            }
+            case ABS: {
+                if(aux->value > 0) {
+                    return abs(rightValue);
+                } else {
+                    return -abs(rightValue);
+                }
+            }
+            case NUM: {
+                return aux->value;
+            }
+            case VAR: {
+                return x;
+            }
+            default: {
+                printf("ERROR: INVALID TYPE");
+                break;
+            }
+        }
+    }
+
+    return -1;
 }
 
 void deleteTree(TreeNode *aux) {

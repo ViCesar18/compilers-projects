@@ -1,10 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <math.h>
-#include "arvore.h"
-#include "sintatico.tab.h"
+#include "dcmat.h"
 
 extern int yylex();
 extern char *yytext;
@@ -13,6 +7,7 @@ double hViewLo = -6.5;
 double hViewHi = 6.5;
 double vViewLo = -3.5;
 double vViewHi = 3.5;
+int integralSteps = 1000;
 
 bool drawAxis = true;
 bool connectDots = false;
@@ -27,6 +22,7 @@ void showSettings() {
     printf("h_view_hi: %lf\n", hViewHi);
     printf("v_view_lo: %lf\n", vViewLo);
     printf("v_view_hi: %lf\n\n", vViewHi);
+    printf("integral_steps: %d\n", integralSteps);
 
     if(drawAxis) {
         printf("Draw Axis: ON.\n");
@@ -48,6 +44,7 @@ void resetSettings() {
     hViewHi = 6.5;
     vViewLo = -3.5;
     vViewHi = 3.5;
+    integralSteps = 1000;
 
     drawAxis = true;
     connectDots = false;
@@ -73,6 +70,32 @@ void setVView(double newLoValue, double newHiValue) {
 
 void setAxis(bool newAxisValue) {
     drawAxis = newAxisValue;
+}
+
+void setIntegralSteps(int newIntegralSteps) {
+    if(newIntegralSteps <= 0) {
+        printf("\nERROR: integral_steps must be a positive non-zero integer\n\n");
+    } else {
+        integralSteps = newIntegralSteps;
+    }
+}
+
+void integrate(TreeNode *exp, double limiteInferior, double limiteSuperior) {
+    if(limiteInferior > limiteSuperior) {
+        printf("\nERROR: lower limit must be smaller than upper limit\n\n");
+        return;
+    }
+
+    double result = 0;
+    double deltaX = (limiteSuperior - limiteInferior) / integralSteps;
+
+    for(int i = 1; i < integralSteps; i++) {
+        double x = deltaX * i;
+
+        result += deltaX * calculateExpression(exp, x);
+    }
+
+    printf("\n%lf\n\n", result);
 }
 
 void saveMatrix(double m[][10], int lines, int columns) {
