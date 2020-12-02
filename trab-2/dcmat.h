@@ -25,6 +25,9 @@ void showMatrix();
 //Resolve o determinante da matriz inserida e printa na tela
 void solveDeterminant();
 
+//Resolve o sistema linear da matriz inserida utilizando o método da Fatoração LU
+void solveLinearSystem();
+
 //Mostra as informações sobre o desenvolvedor
 void about();
 

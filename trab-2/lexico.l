@@ -37,6 +37,8 @@
 
 "solve determinant" { return SOLVE_DETERMINANT; }
 
+"solve linear_system" { return SOLVE_LINEAR_SYSTEM; }
+
 "about" { return ABOUT; }
 
 ":" { return COLON; }

@@ -74,7 +74,8 @@
 %token SET_AXIS_OFF
 %token MATRIX
 %token SHOW_MATRIX
-%token SOLVE_DETERMINANT;
+%token SOLVE_DETERMINANT
+%token SOLVE_LINEAR_SYSTEM
 %token ABOUT
 
 %token COLON
@@ -128,6 +129,7 @@ calclist: exp EOL {
         }
         | SHOW_MATRIX SEMICOLON EOL              { showMatrix(); return 1; }
         | SOLVE_DETERMINANT SEMICOLON EOL        { solveDeterminant(); return 1; }
+        | SOLVE_LINEAR_SYSTEM SEMICOLON EOL      { solveLinearSystem(); return 1; }
         | ABOUT SEMICOLON EOL                    { about(); return 1; }
         | ERROR EOL { return 1; }
 ;
