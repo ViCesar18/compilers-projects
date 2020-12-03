@@ -123,7 +123,11 @@ double calculateExpression(TreeNode *aux, double x) {
                 return aux->value;
             }
             case VAR: {
-                return x;
+                if(aux->value > 0) {
+                    return x;
+                } else {
+                    return -x;
+                }
             }
             default: {
                 printf("ERROR: INVALID TYPE");

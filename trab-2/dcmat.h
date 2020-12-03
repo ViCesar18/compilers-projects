@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <math.h>
 #include "arvore.h"
 #include "sintatico.tab.h"
@@ -23,6 +22,12 @@ void setVView(double newLoValue, double newHiValue);
 
 //Liga ou desliga o desenho dos eixos X e Y
 void setAxis(bool newAxisValue);
+
+//Plota na tela a função anteriormente inserida
+void plot();
+
+//Insere e plota a função passada como parâmetro
+void plotExpression(TreeNode *exp);
 
 //Define a quantidade de passos para calcular o valor de uma integral
 void setIntegralSteps(int newIntegralSteps);

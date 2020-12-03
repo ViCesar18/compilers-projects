@@ -9,19 +9,6 @@
     extern char *yytext;
     void yyerror(char const *s);
 
-    bool first = true;
-
-    extern unsigned columnCounter;
-
-    bool hasError = false;
-    extern bool hasLexicalError;
-    char strError[50];
-
-    extern char *wrongChars;
-    extern int wrongCharsCount;
-
-    extern bool endOfProgram;
-
     TreeNode *ARVORE = NULL;
 
     int mLines = 0;
@@ -71,6 +58,7 @@
 %token SET_V_VIEW
 %token SET_AXIS_ON
 %token SET_AXIS_OFF
+%token PLOT
 %token SET_INTEGRAL_STEPS
 %token INTEGRATE
 %token MATRIX
@@ -110,12 +98,51 @@ calclist: exp EOL {
 
     return 1;
 }
-        | SHOW_SETTINGS SEMICOLON EOL            { showSettings(); return 1; }
-        | RESET_SETTINGS SEMICOLON EOL           { resetSettings(); return 1; }
-        | SET_H_VIEW NUM COLON NUM SEMICOLON EOL { setHView($2, $4); return 1; }
-        | SET_V_VIEW NUM COLON NUM SEMICOLON EOL { setVView($2, $4); return 1; }
-        | SET_AXIS_ON SEMICOLON EOL              { setAxis(true); return 1; }
-        | SET_AXIS_OFF SEMICOLON EOL             { setAxis(false); return 1; }
+        | SHOW_SETTINGS SEMICOLON EOL                             { showSettings(); return 1; }
+        | RESET_SETTINGS SEMICOLON EOL                            { resetSettings(); return 1; }
+        | QUIT EOL                                                { return 0; }
+        | SET_H_VIEW signal NUM COLON signal NUM SEMICOLON EOL    {
+            double low, high;
+
+            if($2 != NULL && $2->nodeType == SUB) {
+                low = -$3;
+            } else {
+                low = $3;
+            }
+
+            if($5 != NULL && $5->nodeType == SUB) {
+                high = -$6;
+            } else {
+                high = $6;
+            }
+
+            setHView(low, high);
+            
+            return 1;
+        }
+        | SET_V_VIEW signal NUM COLON signal NUM SEMICOLON EOL    {
+            double low, high;
+
+            if($2 != NULL && $2->nodeType == SUB) {
+                low = -$3;
+            } else {
+                low = $3;
+            }
+
+            if($5 != NULL && $5->nodeType == SUB) {
+                high = -$6;
+            } else {
+                high = $6;
+            }
+
+            setVView(low, high);
+
+            return 1;
+        }
+        | SET_AXIS_ON SEMICOLON EOL                               { setAxis(true); return 1; }
+        | SET_AXIS_OFF SEMICOLON EOL                              { setAxis(false); return 1; }
+        | PLOT SEMICOLON EOL                                      { plot(); return 1; }
+        | PLOT L_PARENT exp R_PARENT SEMICOLON EOL                { plotExpression($3); return 1; }
         | SET_INTEGRAL_STEPS signal NUM SEMICOLON EOL   {
             if($2 != NULL && $2->nodeType == SUB) {
                 setIntegralSteps((int) -$3);
@@ -349,16 +376,6 @@ signal
 %%
 
 void yyerror(char const *s) {
-    if(!hasError && !hasLexicalError) {
-        unsigned columnNumber = columnCounter - strlen(yytext);
-
-        if(yytext[0] != '\n' && yytext[0] != '\0') {
-            sprintf(strError, "Erro de sintaxe na coluna [%u]: %s", columnNumber, yytext);
-        }
-        else {
-            sprintf(strError, "A expressao terminou de forma inesperada.");
-        }
-
-        hasError = true;
-    }
+    printf("Erro de Sintaxe: [%s]\n\n", yytext);
+    yylex();
 }

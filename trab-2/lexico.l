@@ -1,18 +1,8 @@
 %option noyywrap
 
 %{
-    #include <stdbool.h>
     #include "arvore.h"
     #include "sintatico.tab.h"
-
-    unsigned columnCounter = 1;
-
-    char *wrongChars;
-    int wrongCharsCount = 0;
-
-    bool hasLexicalError = false;
-
-    bool endOfProgram = false;
 %}
 
 %%
@@ -30,6 +20,8 @@
 "set axis on" { return SET_AXIS_ON; }
 
 "set axis off" { return SET_AXIS_OFF; }
+
+"plot" { return PLOT; }
 
 "set integral_steps" { return SET_INTEGRAL_STEPS; }
 
@@ -55,109 +47,52 @@
 
 "," { return COMMA; }
 
-"+" {
-    columnCounter += strlen(yytext);
-    return ADD;
-}
+"+" { return ADD; }
 
-"-" {
-    columnCounter += strlen(yytext);
-    return SUB;
-}
+"-" { return SUB; }
 
-"*" {
-    columnCounter += strlen(yytext);
-    return MUL;
-}
+"*" { return MUL; }
 
-"/" {
-    columnCounter += strlen(yytext);
-    return DIV;
-}
+"/" { return DIV; }
 
-"^" {
-    columnCounter += strlen(yytext);
-    return POWER;
-}
+"^" { return POWER; }
 
-"%" {
-    columnCounter += strlen(yytext);
-    return MODULE;
-}
+"%" { return MODULE; }
 
-"(" {
-    columnCounter += strlen(yytext);
-    return L_PARENT;
-}
+"(" { return L_PARENT; }
 
-")" {
-    columnCounter += strlen(yytext);
-    return R_PARENT;
-}
+")" { return R_PARENT; }
 
-"sen" {
-    columnCounter += strlen(yytext);
-    return SEN;
-}
+"sen" { return SEN; }
 
-"cos" {
-    columnCounter += strlen(yytext);
-    return COS;
-}
+"cos" { return COS; }
 
-"tan" {
-    columnCounter += strlen(yytext);
-    return TAN;
-}
+"tan" { return TAN; }
 
-"abs" {
-    columnCounter += strlen(yytext);
-    return ABS;
-}
+"abs" { return ABS; }
 
-"x" {
-    columnCounter += strlen(yytext);
-    return VAR;
-}
+"x" { return VAR; }
 
 [0-9]+ {
-    columnCounter += strlen(yytext);
-
     yylval.number = atof(yytext);
 
     return NUM;
 }
 
 [0-9]+"."[0-9]+ {
-    columnCounter += strlen(yytext);
-
     yylval.number = atof(yytext);
 
     return NUM;
 }
 
-\n {
-    columnCounter = 1;
-    return EOL;
-}
+\n { return EOL; }
 
-[ \t] {
-    columnCounter += strlen(yytext);
-}
+[ \t] {}
 
 . {
-    columnCounter++;
-
     printf("Simbolo Invalido -> %c\n\n", yytext[0]);
 
-    hasLexicalError = true;
-
     return ERROR;
-}
-
-<<EOF>> {
-    endOfProgram = true;
-    return EOL;
 }
 
 %%

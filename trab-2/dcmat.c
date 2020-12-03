@@ -1,8 +1,5 @@
 #include "dcmat.h"
 
-extern int yylex();
-extern char *yytext;
-
 double hViewLo = -6.5;
 double hViewHi = 6.5;
 double vViewLo = -3.5;
@@ -11,6 +8,10 @@ int integralSteps = 1000;
 
 bool drawAxis = true;
 bool connectDots = false;
+
+TreeNode *expression = NULL;
+
+char plotArea[25][80];
 
 double matrix[10][10];
 int matrixLines;
@@ -21,8 +22,8 @@ void showSettings() {
     printf("\nh_view_lo: %lf\n", hViewLo);
     printf("h_view_hi: %lf\n", hViewHi);
     printf("v_view_lo: %lf\n", vViewLo);
-    printf("v_view_hi: %lf\n\n", vViewHi);
-    printf("integral_steps: %d\n", integralSteps);
+    printf("v_view_hi: %lf\n", vViewHi);
+    printf("integral_steps: %d\n\n", integralSteps);
 
     if(drawAxis) {
         printf("Draw Axis: ON.\n");
@@ -70,6 +71,69 @@ void setVView(double newLoValue, double newHiValue) {
 
 void setAxis(bool newAxisValue) {
     drawAxis = newAxisValue;
+}
+
+void plot() {
+    if(expression == NULL) {
+        printf("\nNo Function defined!\n\n");
+        return;
+    }
+
+    int i, j;
+
+    for(i = 0; i < 25; i++) {
+        for(j = 0; j < 80; j++) {
+            if(i == 12) {
+                plotArea[i][j] = '-';
+            } else if(j == 40) {
+                plotArea[i][j] = '|';
+            } else {
+                plotArea[i][j] = ' ';
+            }
+        }
+    }
+
+    double deltaX = (hViewHi - hViewLo) / 80;
+    double deltaY = (vViewHi - vViewLo) / 24;
+
+    for(i = 0; i < 80; i++) {
+        double x = deltaX * i + hViewLo;
+        double y;
+
+        double funcY = calculateExpression(expression, x);
+
+        for(j = 0; j < 25; j++) {
+            y = vViewHi - deltaY * j;
+
+            if(funcY >= y) {
+                break;
+            }
+        }
+
+        if(funcY > vViewLo && funcY < vViewHi) {
+            plotArea[j][i] = '*';
+        }
+    }
+
+    //Plota o gráfico
+    printf("\n");
+    for(i = 0; i < 25; i++) {
+        for(j = 0; j < 80; j++) {
+            printf("%c", plotArea[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n\n");
+}
+
+void plotExpression(TreeNode *exp) {
+    if(expression != NULL) {
+        deleteTree(expression);
+    }
+
+    expression = exp;
+
+    plot();
 }
 
 void setIntegralSteps(int newIntegralSteps) {
@@ -289,12 +353,12 @@ void about() {
 }
 
 int main() {
-    double **matrix;
+    int quit;
 
     do {
         printf(">");
-        yyparse();
-    } while(strcmp(yytext, "quit"));
+        quit = yyparse();
+    } while(quit);
 
     return 0;
 }
