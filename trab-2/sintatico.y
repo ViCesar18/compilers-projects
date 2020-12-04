@@ -51,24 +51,28 @@
 %token EOL
 %token ERROR
 
-%token SHOW_SETTINGS
-%token RESET_SETTINGS
+%token SHOW
+%token SETTINGS
+%token RESET
 %token QUIT
-%token SET_H_VIEW
-%token SET_V_VIEW
-%token SET_AXIS_ON
-%token SET_AXIS_OFF
+%token SET
+%token H_VIEW
+%token V_VIEW
+%token AXIS
+%token ON
+%token OFF
 %token PLOT
-%token SET_INTEGRAL_STEPS
+%token INTEGRAL_STEPS
 %token INTEGRATE
 %token MATRIX
-%token SHOW_MATRIX
-%token SOLVE_DETERMINANT
-%token SOLVE_LINEAR_SYSTEM
+%token SOLVE
+%token DETERMINANT
+%token LINEAR_SYSTEM
 %token ABOUT
 
 %token COLON
 %token SEMICOLON
+%token ASSIGN
 %token L_BRACKET
 %token R_BRACKET
 %token COMMA
@@ -98,56 +102,56 @@ calclist: exp EOL {
 
     return 1;
 }
-        | SHOW_SETTINGS SEMICOLON EOL                             { showSettings(); return 1; }
-        | RESET_SETTINGS SEMICOLON EOL                            { resetSettings(); return 1; }
+        | SHOW SETTINGS SEMICOLON EOL                             { showSettings(); return 1; }
+        | RESET SETTINGS SEMICOLON EOL                            { resetSettings(); return 1; }
         | QUIT EOL                                                { return 0; }
-        | SET_H_VIEW signal NUM COLON signal NUM SEMICOLON EOL    {
+        | SET H_VIEW signal NUM COLON signal NUM SEMICOLON EOL    {
             double low, high;
 
-            if($2 != NULL && $2->nodeType == SUB) {
-                low = -$3;
+            if($3 != NULL && $3->nodeType == SUB) {
+                low = -$4;
             } else {
-                low = $3;
+                low = $4;
             }
 
-            if($5 != NULL && $5->nodeType == SUB) {
-                high = -$6;
+            if($6 != NULL && $6->nodeType == SUB) {
+                high = -$7;
             } else {
-                high = $6;
+                high = $7;
             }
 
             setHView(low, high);
             
             return 1;
         }
-        | SET_V_VIEW signal NUM COLON signal NUM SEMICOLON EOL    {
+        | SET V_VIEW signal NUM COLON signal NUM SEMICOLON EOL    {
             double low, high;
 
-            if($2 != NULL && $2->nodeType == SUB) {
-                low = -$3;
+            if($3 != NULL && $3->nodeType == SUB) {
+                low = -$4;
             } else {
-                low = $3;
+                low = $4;
             }
 
-            if($5 != NULL && $5->nodeType == SUB) {
-                high = -$6;
+            if($6 != NULL && $6->nodeType == SUB) {
+                high = -$7;
             } else {
-                high = $6;
+                high = $7;
             }
 
             setVView(low, high);
 
             return 1;
         }
-        | SET_AXIS_ON SEMICOLON EOL                               { setAxis(true); return 1; }
-        | SET_AXIS_OFF SEMICOLON EOL                              { setAxis(false); return 1; }
+        | SET AXIS ON SEMICOLON EOL                               { setAxis(true); return 1; }
+        | SET AXIS OFF SEMICOLON EOL                              { setAxis(false); return 1; }
         | PLOT SEMICOLON EOL                                      { plot(); return 1; }
         | PLOT L_PARENT exp R_PARENT SEMICOLON EOL                { plotExpression($3); return 1; }
-        | SET_INTEGRAL_STEPS signal NUM SEMICOLON EOL   {
-            if($2 != NULL && $2->nodeType == SUB) {
-                setIntegralSteps((int) -$3);
+        | SET INTEGRAL_STEPS signal NUM SEMICOLON EOL   {
+            if($3 != NULL && $3->nodeType == SUB) {
+                setIntegralSteps((int) -$4);
             } else {
-                setIntegralSteps((int) $3);
+                setIntegralSteps((int) $4);
             }
 
             return 1;
@@ -171,7 +175,7 @@ calclist: exp EOL {
 
             return 1;
         }
-        | MATRIX L_BRACKET matrix R_BRACKET SEMICOLON EOL {
+        | MATRIX ASSIGN L_BRACKET matrix R_BRACKET SEMICOLON EOL {
             saveMatrix(m, mLines, mColumns);
 
             mLines = 0;
@@ -182,11 +186,12 @@ calclist: exp EOL {
 
             return 1;
         }
-        | SHOW_MATRIX SEMICOLON EOL              { showMatrix(); return 1; }
-        | SOLVE_DETERMINANT SEMICOLON EOL        { solveDeterminant(); return 1; }
-        | SOLVE_LINEAR_SYSTEM SEMICOLON EOL      { solveLinearSystem(); return 1; }
+        | SHOW MATRIX SEMICOLON EOL              { showMatrix(); return 1; }
+        | SOLVE DETERMINANT SEMICOLON EOL        { solveDeterminant(); return 1; }
+        | SOLVE LINEAR_SYSTEM SEMICOLON EOL      { solveLinearSystem(); return 1; }
         | ABOUT SEMICOLON EOL                    { about(); return 1; }
-        | ERROR EOL { return 1; }
+        | ERROR EOL                              { return 1; }
+        | EOL                                    { return 1; }
 ;
 
 matrix
@@ -195,10 +200,12 @@ matrix
 
 matrix_prime
     : L_BRACKET signal NUM matrix_elements R_BRACKET {
-        if($2 != NULL && $2->nodeType == SUB) {
-            m[mLines - 1][0] = -$3;
-        } else {
-            m[mLines - 1][0] = $3;
+        if(mLines - 1 < 10) {
+            if($2 != NULL && $2->nodeType == SUB) {
+                m[mLines - 1][0] = -$3;
+            } else {
+                m[mLines - 1][0] = $3;
+            }
         }
 
         if(mColumns < mColumnsCounter) {
@@ -211,10 +218,12 @@ matrix_prime
 
 matrix_elements
     : matrix_elements COMMA signal NUM {
-        if($3 != NULL && $3->nodeType == SUB) {
-            m[mLines - 1][mColumnsCounter] = -$4;
-        } else {
-            m[mLines - 1][mColumnsCounter] = $4;
+        if(mLines - 1 < 10 && mColumnsCounter < 10) {
+            if($3 != NULL && $3->nodeType == SUB) {
+                m[mLines - 1][mColumnsCounter] = -$4;
+            } else {
+                m[mLines - 1][mColumnsCounter] = $4;
+            }
         }
 
         mColumnsCounter++;
@@ -376,6 +385,17 @@ signal
 %%
 
 void yyerror(char const *s) {
-    printf("Erro de Sintaxe: [%s]\n\n", yytext);
-    yylex();
+    if(!strcmp(yytext, "\n")) {
+        printf("Erro de Sintaxe: Comando Incompleto\n\n");
+    } else {
+        printf("Erro de Sintaxe: [%s]\n\n", yytext);
+        
+        while(yylex() != EOL);
+    }
+
+    mLines = 0;
+    mColumns = 0;
+    mColumnsCounter = 1;
+
+    memset(m, 0, 10 * 10 * sizeof(double));
 }

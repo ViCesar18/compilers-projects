@@ -7,39 +7,47 @@
 
 %%
 
-"show settings" { return SHOW_SETTINGS; }
+"show" { return SHOW; }
 
-"reset settings" { return RESET_SETTINGS; }
+"settings" { return SETTINGS; }
+
+"reset" { return RESET; }
 
 "quit" { return QUIT; }
 
-"set h_view" { return SET_H_VIEW; }
+"set" { return SET; }
 
-"set v_view" { return SET_V_VIEW; }
+"h_view" { return H_VIEW; }
 
-"set axis on" { return SET_AXIS_ON; }
+"v_view" { return V_VIEW; }
 
-"set axis off" { return SET_AXIS_OFF; }
+"axis" { return AXIS; }
+
+"on" { return ON; }
+
+"off" { return OFF; }
 
 "plot" { return PLOT; }
 
-"set integral_steps" { return SET_INTEGRAL_STEPS; }
+"integral_steps" { return INTEGRAL_STEPS; }
 
 "integrate" { return INTEGRATE; }
 
-"matrix = " { return MATRIX; }
+"matrix" { return MATRIX; }
 
-"show matrix" { return SHOW_MATRIX; }
+"solve" { return SOLVE; }
 
-"solve determinant" { return SOLVE_DETERMINANT; }
+"determinant" { return DETERMINANT; }
 
-"solve linear_system" { return SOLVE_LINEAR_SYSTEM; }
+"linear_system" { return LINEAR_SYSTEM; }
 
 "about" { return ABOUT; }
 
 ":" { return COLON; }
 
 ";" { return SEMICOLON; }
+
+"=" { return ASSIGN; }
 
 "[" { return L_BRACKET; }
 
@@ -87,7 +95,7 @@
 
 \n { return EOL; }
 
-[ \t] {}
+[ \t] {  }
 
 . {
     printf("Simbolo Invalido -> %c\n\n", yytext[0]);

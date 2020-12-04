@@ -65,7 +65,7 @@ void setVView(double newLoValue, double newHiValue) {
         vViewLo = newLoValue;
         vViewHi = newHiValue;
     } else {
-        printf("\nERROR: v_view_lo must be smaller than h_view_hi\n\n");
+        printf("\nERROR: v_view_lo must be smaller than v_view_hi\n\n");
     }
 }
 
@@ -74,45 +74,92 @@ void setAxis(bool newAxisValue) {
 }
 
 void plot() {
+    //Se nenhuma função tiver sido inserida ainda
     if(expression == NULL) {
         printf("\nNo Function defined!\n\n");
         return;
     }
 
     int i, j;
+    int axisX = -1, axisY = -1;
 
-    for(i = 0; i < 25; i++) {
-        for(j = 0; j < 80; j++) {
-            if(i == 12) {
-                plotArea[i][j] = '-';
-            } else if(j == 40) {
-                plotArea[i][j] = '|';
-            } else {
+    double deltaX = (hViewHi - hViewLo) / 80;
+    double deltaY = (vViewHi - vViewLo) / 24;
+
+    if(drawAxis) {
+        //Calcula onde será desenhado o eixo Y
+        for(i = 0; i < 80; i++) {
+            double x = deltaX * i + hViewLo;
+
+            if(x > -1 && x <= 0) {
+                double proxX = deltaX * (i + 1) + hViewLo;
+
+                if(proxX > 0) {
+                    axisY = i;
+                    break;
+                }
+            }
+        }
+
+        //Calcula onde será desenhado o eixo X
+        for(i = 0; i < 25; i++) {
+            double y = vViewHi - deltaY * i;
+
+            if(y >= 0 && y < 1) {
+                double proxY = vViewHi - deltaY * (i + 1);
+                
+                if(proxY < 0) {
+                    axisX = i;
+                    break;
+                }
+            }
+        }
+
+        //Insere os eixos X e Y na área de plotagem
+        for(i = 0; i < 25; i++) {
+            for(j = 0; j < 80; j++) {
+                if(axisX > 0 && i == axisX) {
+                    plotArea[i][j] = '-';
+                } else if(axisY > 0 && j == axisY) {
+                    plotArea[i][j] = '|';
+                } else {
+                    plotArea[i][j] = ' ';
+                }
+            }
+        }
+    } else {
+        for(i = 0; i < 25; i++) {
+            for(j = 0; j < 80; j++) {
                 plotArea[i][j] = ' ';
             }
         }
     }
 
-    double deltaX = (hViewHi - hViewLo) / 80;
-    double deltaY = (vViewHi - vViewLo) / 24;
-
+    //Calcula onde será desenhado cada pixel do gráfico
     for(i = 0; i < 80; i++) {
         double x = deltaX * i + hViewLo;
-        double y;
 
         double funcY = calculateExpression(expression, x);
 
-        for(j = 0; j < 25; j++) {
-            y = vViewHi - deltaY * j;
+        //Se o ponto da função tiver fora da área de plotagem, passa para o próximo ponto
+        if(funcY < vViewLo || funcY > vViewHi) {
+            continue;
+        }
 
-            if(funcY >= y) {
+        for(j = 0; j < 25; j++) {
+            double y = vViewHi - deltaY * j;
+
+            //Se y retornado da função for igual a atual posição do y, pega a linha atual (j)
+            //Se y retornado da função for maior a atual posição do y, pega a linha anterior (j - 1)
+            if(funcY == y) {
+                break;
+            } else if(funcY > y) {
+                j -= 1;
                 break;
             }
         }
 
-        if(funcY > vViewLo && funcY < vViewHi) {
-            plotArea[j][i] = '*';
-        }
+        plotArea[j][i] = '*';
     }
 
     //Plota o gráfico
@@ -346,7 +393,7 @@ void about() {
     printf("\n");
     printf("+--------------------------------------------------+\n");
     printf("|                                                  |\n");
-    printf("|     VINICIUS CESAR DOS SANTOS - 201800560288     |\n");
+    printf("|     201800560288 - VINICIUS CESAR DOS SANTOS     |\n");
     printf("|                                                  |\n");
     printf("+--------------------------------------------------+\n");
     printf("\n\n");
