@@ -24,3 +24,6 @@ lista-7/exemplo
 
 #Arquivos Compactados
 *.zip
+
+#vscode
+.vscode
