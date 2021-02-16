@@ -3,12 +3,12 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdbool.h>
-    #include "ast.h"
     #include "hash_table.h"
+    #include "ast.h"
 
     extern int yylex();
     extern char *yytext;
-    void yyerror(char const *s);
+    void yyerror(ProgramNode *ast, char const *s);
 
     extern unsigned lineCounter;
     extern unsigned columnCounter;
@@ -16,13 +16,19 @@
     extern char *lineError;
 
     extern bool hasSyntaxError;
+
+    int type;
 %}
+
+%parse-param {ProgramNode *ast}
 
 %union{
     TreeNode *ast;
-    ExpressionNode expressao;
-    CommandNode comando;
-    FunctionNode funcao;
+    ExpressionNode *expressao;
+    CommandNode *comando;
+    FunctionNode *funcao;
+    VariableNode *variavel;
+    DeclarationNode *declaracao;
     int number;
     char *id;
 }
@@ -116,9 +122,22 @@
 %type <expressao> expressao_shift
 %type <expressao> expressao_aditiva
 %type <expressao> expressao_multiplicativa
+%type <expressao> expressao_cast
+%type <expressao> expressao_unaria
+%type <expressao> expressao_pos_fixa
+%type <expressao> expressao_pos_fixa_prime
+%type <expressao> expressao_pos_fixa_double_prime
+%type <expressao> l_expressao_pos_fixa
 %type <expressao> expressao_primaria
 %type <expressao> numero
 %type <id> IDENTIFIER
+
+%type <declaracao> declaracao_prototipos
+%type <variavel> declaracao_variaveis_double_prime
+%type <variavel> declaracao_variaveis_prime
+%type <declaracao> declaracao_variaveis
+%type <declaracao> declaracoes
+%type <number> tipo
 
 %start S
 
@@ -129,15 +148,23 @@ S: programa EOP{
     programa->tabelaSimbolosGlobal = createHashTable(211);
     programa->listaFuncoes = $1;
 
-    return programa;
+    memcpy(ast, programa, sizeof(struct program));
+
+    return 1;
 }
 ;
 
 //Programa
 programa:
           declaracoes programa {
-            $1->next = $2;
-            $$ = $1;
+            FunctionNode *aux = (FunctionNode *) malloc(sizeof(struct function));
+
+            aux->flgDeclaracao = 1;
+
+            aux->declarations = $1;
+
+            aux->next = $2;
+            $$ = aux;
         }
         | funcao programa      {
             $1->next = $2;
@@ -147,18 +174,34 @@ programa:
 ;
 
 //Declarações
-declaracoes: NUMBER_SIGN DEFINE IDENTIFIER expressao {}
-           | declaracao_variaveis                    {}
-           | declaracao_prototipos                   {}
+declaracoes:
+             NUMBER_SIGN DEFINE IDENTIFIER expressao {
+                 DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
+                 aux->tipo = S_DEFINE_DECL;
+                 aux->variables = NULL;
+                 aux->flgPrototipo = 0;
+
+                 aux->nome = (char *) malloc(sizeof($3) + 1);
+                 strcpy(aux->nome, $3);
+
+                 aux->expressao = $4;
+                 aux->next = NULL;
+                 $$ = aux;
+             }
+           | declaracao_variaveis                    { $$ = $1; }
+           | declaracao_prototipos                   { $$ = $1; }
 ;
 
 //Função
 funcao: tipo loop_ponteiro IDENTIFIER parametros L_CURLY_BRACKET loop_variaveis comandos R_CURLY_BRACKET {
     FunctionNode *aux = (FunctionNode *) malloc(sizeof(struct function));
+
+    aux->flgDeclaracao = 0;
+
     aux->nome = (char *) malloc(sizeof($3) + 1);
     strcpy(aux->nome, $3);
 
-    aux->tabelaSimbolos = HashTable(211);
+    aux->tabelaSimbolos = createHashTable(211);
 
     aux->listaComandos = $7;
 
@@ -168,18 +211,45 @@ funcao: tipo loop_ponteiro IDENTIFIER parametros L_CURLY_BRACKET loop_variaveis 
 ;
 
 //Declaração de Variáveis
-declaracao_variaveis: tipo declaracao_variaveis_prime SEMICOLON {}
+declaracao_variaveis: tipo declaracao_variaveis_prime SEMICOLON {
+    DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
+    aux->tipo = $1;
+    aux->variables = $2;
+    aux->flgPrototipo = 0;
+    aux->nome = NULL;
+    aux->expressao = NULL;
+    aux->next = NULL;
+    $$ = aux;
+}
 ;
 
-declaracao_variaveis_prime: loop_ponteiro IDENTIFIER loop_vetor opc_atribuicao declaracao_variaveis_double_prime {}
+declaracao_variaveis_prime: loop_ponteiro IDENTIFIER loop_vetor opc_atribuicao declaracao_variaveis_double_prime {
+    VariableNode *aux = (VariableNode *) malloc(sizeof(struct variable));
+    aux->nome = (char *) malloc(sizeof($2) + 1);
+    strcpy(aux->nome, $2);
+    aux->next = $5;
+    $$ = aux;
+}
 ;
 
-declaracao_variaveis_double_prime: COMMA declaracao_variaveis_prime {}
-                                 |                                  {}
+declaracao_variaveis_double_prime: COMMA declaracao_variaveis_prime { $$ = $2; }
+                                 |                                  { $$ = NULL; }
 ;
 
 //Declaração de Protótipos
-declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {}
+declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {
+    DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
+    aux->tipo = $1;
+    aux->variables = NULL;
+    aux->flgPrototipo = 1;
+
+    aux->nome = (char *) malloc(sizeof($3) + 1);
+    strcpy(aux->nome, $3);
+
+    aux->expressao = NULL;
+    aux->next = NULL;
+    $$ = aux;
+}
 ;
 
 //Parâmetros
@@ -198,9 +268,9 @@ opc_param: parametros_prime {}
 ;
 
 //Tipo
-tipo: INT       {}
-    | CHAR      {}
-    | VOID      {}
+tipo: INT       { $$ = S_INT; }
+    | CHAR      { $$ = S_CHAR; }
+    | VOID      { $$ = S_VOID; }
 ;
 
 //Bloco
@@ -222,7 +292,7 @@ comandos_prime: comandos { $$ = $1; }
 lista_comandos:
                 DO bloco WHILE L_PAREN expressao R_PAREN SEMICOLON                                                               {
                     CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                    aux->commandType = DO;
+                    aux->commandType = S_DO;
                     aux->exp = $5;
                     aux->then = $2;
                     aux->next = NULL;
@@ -230,16 +300,16 @@ lista_comandos:
                 }
               | IF L_PAREN expressao R_PAREN bloco lista_comandos_if                                                             {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = IF;
+                  aux->commandType = S_IF;
                   aux->exp = $3;
                   aux->then = $5;
-                  aux->else = $6;
+                  aux->Else = $6;
                   aux->next = NULL;
                   $$ = aux;
               }
               | WHILE L_PAREN expressao R_PAREN bloco                                                                            {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = WHILE;
+                  aux->commandType = S_WHILE;
                   aux->exp = $3;
                   aux->then = $5;
                   aux->next = NULL;
@@ -247,7 +317,7 @@ lista_comandos:
               }
               | FOR L_PAREN lista_comandos_exp SEMICOLON lista_comandos_exp SEMICOLON lista_comandos_exp R_PAREN bloco           {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = FOR;
+                  aux->commandType = S_FOR;
                   aux->exp = $3;
                   aux->exp2 = $5;
                   aux->exp3 = $7;
@@ -257,41 +327,41 @@ lista_comandos:
               }
               | PRINTF L_PAREN STRING lista_comandos_print R_PAREN SEMICOLON                                                     {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = PRINTF;
-                  aux->exp = $3;
+                  aux->commandType = S_PRINTF;
+                  aux->exp = $4;
                   aux->next = NULL;
                   $$ = aux;
               }
               | SCANF L_PAREN STRING COMMA BITWISE_AND IDENTIFIER R_PAREN SEMICOLON                                              {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = SCANF;
+                  aux->commandType = S_SCANF;
                   aux->next = NULL;
                   $$ = aux;
               }
               | EXIT L_PAREN expressao R_PAREN SEMICOLON                                                                         {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = EXIT;
+                  aux->commandType = S_EXIT;
                   aux->exp = $3;
                   aux->next = NULL;
                   $$ = aux;
               }
               | RETURN lista_comandos_exp SEMICOLON                                                                              {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = RETURN;
-                  aux->exp = $3;
+                  aux->commandType = S_RETURN;
+                  aux->exp = $2;
                   aux->next = NULL;
                   $$ = aux;
               }
               | expressao SEMICOLON                                                                                              {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = EXPRESSAO;
+                  aux->commandType = S_COMMAND_EXPRESSION;
                   aux->exp = $1;
                   aux->next = NULL;
                   $$ = aux;
               }
               | SEMICOLON                                                                                                        {
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
-                  aux->commandType = SEMICOLON;
+                  aux->commandType = S_SEMICOLON;
                   aux->next = NULL;
                   $$ = aux;
               }
@@ -315,7 +385,7 @@ lista_comandos_print: COMMA expressao { $$ = $2; }
 //Expressão
 expressao: expressao_atribuicao expressao_prime {
     ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-    aux->expType = COMMA;
+    aux->expType = S_EXP;
     aux->left = $1;
     aux->right = $2;
     $$ = aux;
@@ -337,16 +407,16 @@ expressao_atribuicao: expressao_condicional                                     
                     }
 ;
 
-expressao_atribuicao_prime: ASSIGN       { $$ = $1; }
-                          | ADD_ASSIGN   { $$ = $1; }
-                          | MINUS_ASSIGN { $$ = $1; }
+expressao_atribuicao_prime: ASSIGN       { $$ = S_ASSIGN; }
+                          | ADD_ASSIGN   { $$ = S_ADD_ASSIGN; }
+                          | MINUS_ASSIGN { $$ = S_MINUS_ASSIGN; }
 ;
 
 //Experssão Condicional
 expressao_condicional: expressao_or_logico                                                           { $$ = $1; }
                      | expressao_or_logico TERNARY_CONDITIONAL expressao COLON expressao_condicional {
                          ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                         aux->expType = TERNARY_CONDITIONAL;
+                         aux->expType = S_TERNARY_CONDITIONAL;
                          aux->ternaryExpression = $1;
                          aux->left = $3;
                          aux->right = $5;
@@ -358,7 +428,7 @@ expressao_condicional: expressao_or_logico                                      
 expressao_or_logico: expressao_and_logico                                { $$ = $1; }
                    | expressao_or_logico LOGICAL_OR expressao_and_logico {
                        ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                       aux->expType = LOGICAL_OR;
+                       aux->expType = S_LOGICAL_OR;
                        aux->left = $1;
                        aux->right = $3;
                        $$ = aux;
@@ -369,7 +439,7 @@ expressao_or_logico: expressao_and_logico                                { $$ = 
 expressao_and_logico: expressao_or                                  { $$ = $1; }
                     | expressao_and_logico LOGICAL_AND expressao_or {
                         ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                        aux->expType = LOGICAL_AND;
+                        aux->expType = S_LOGICAL_AND;
                         aux->left = $1;
                         aux->right = $3;
                         $$ = aux;
@@ -380,7 +450,7 @@ expressao_and_logico: expressao_or                                  { $$ = $1; }
 expressao_or: expressao_xor                         { $$ = $1; }
             | expressao_or BITWISE_OR expressao_xor {
                 ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                aux->expType = BITWISE_OR;
+                aux->expType = S_BITWISE_OR;
                 aux->left = $1;
                 aux->right = $3;
                 $$ = aux;
@@ -391,7 +461,7 @@ expressao_or: expressao_xor                         { $$ = $1; }
 expressao_xor: expressao_and                           { $$ = $1; }
              | expressao_xor BITWISE_XOR expressao_and {
                  ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                 aux->expType = BITWISE_XOR;
+                 aux->expType = S_BITWISE_XOR;
                  aux->left = $1;
                  aux->right = $3;
                  $$ = aux;
@@ -402,7 +472,7 @@ expressao_xor: expressao_and                           { $$ = $1; }
 expressao_and: expressao_igualdade                           { $$ = $1; }
              | expressao_and BITWISE_AND expressao_igualdade {
                  ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                 aux->expType = BITWISE_AND;
+                 aux->expType = S_BITWISE_AND;
                  aux->left = $1;
                  aux->right = $3;
                  $$ = aux;
@@ -413,14 +483,14 @@ expressao_and: expressao_igualdade                           { $$ = $1; }
 expressao_igualdade: expressao_relacional                               { $$ = $1; }
                    | expressao_igualdade EQUAL expressao_relacional     {
                        ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                       aux->expType = EQUAL;
+                       aux->expType = S_EQUAL;
                        aux->left = $1;
                        aux->right = $3;
                        $$ = aux;
                    }
                    | expressao_igualdade NOT_EQUAL expressao_relacional {
                        ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                       aux->expType = NOT_EQUAL;
+                       aux->expType = S_NOT_EQUAL;
                        aux->left = $1;
                        aux->right = $3;
                        $$ = aux;
@@ -431,28 +501,28 @@ expressao_igualdade: expressao_relacional                               { $$ = $
 expressao_relacional: expressao_shift                                    { $$ = $1; }
                     | expressao_relacional LESS_THAN expressao_shift     {
                         ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                        aux->expType = LESS_THAN;
+                        aux->expType = S_LESS_THAN;
                         aux->left = $1;
                         aux->right = $3;
                         $$ = aux;
                     }
                     | expressao_relacional LESS_EQUAL expressao_shift    {
                         ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                        aux->expType = LESS_EQUAL;
+                        aux->expType = S_LESS_EQUAL;
                         aux->left = $1;
                         aux->right = $3;
                         $$ = aux;
                     }
                     | expressao_relacional GREATER_THAN expressao_shift  {
                         ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                        aux->expType = GREATER_THAN;
+                        aux->expType = S_GREATER_THAN;
                         aux->left = $1;
                         aux->right = $3;
                         $$ = aux;
                     }
                     | expressao_relacional GREATER_EQUAL expressao_shift {
                         ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                        aux->expType = GREATER_EQUAL;
+                        aux->expType = S_GREATER_EQUAL;
                         aux->left = $1;
                         aux->right = $3;
                         $$ = aux;
@@ -463,26 +533,32 @@ expressao_relacional: expressao_shift                                    { $$ = 
 expressao_shift: expressao_aditiva                         { $$ = $1; }
                | expressao_shift L_SHIFT expressao_aditiva {
                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                   aux->expType = MULTIPLICACAO;
+                   aux->expType = S_L_SHIFT;
                    aux->left = $1;
                    aux->right = $3;
                    $$ = aux;
                }
-               | expressao_shift R_SHIFT expressao_aditiva {}
+               | expressao_shift R_SHIFT expressao_aditiva {
+                   ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                   aux->expType = S_R_SHIFT;
+                   aux->left = $1;
+                   aux->right = $3;
+                   $$ = aux;
+               }
 ;
 
 //Expressão Aditiva
 expressao_aditiva: expressao_multiplicativa                         { $$ = $1; }
                  | expressao_aditiva PLUS expressao_multiplicativa  {
                      ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                     aux->expType = PLUS;
+                     aux->expType = S_PLUS;
                      aux->left = $1;
                      aux->right = $3;
                      $$ = aux;
                  }
                  | expressao_aditiva MINUS expressao_multiplicativa {
                      ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                     aux->expType = MINUS;
+                     aux->expType = S_MINUS;
                      aux->left = $1;
                      aux->right = $3;
                      $$ = aux;
@@ -493,21 +569,21 @@ expressao_aditiva: expressao_multiplicativa                         { $$ = $1; }
 expressao_multiplicativa: expressao_cast                                    { $$ = $1; }
                         | expressao_multiplicativa MULTIPLY expressao_cast  {
                             ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                            aux->expType = MULTIPLY;
+                            aux->expType = S_MULTIPLY;
                             aux->left = $1;
                             aux->right = $3;
                             $$ = aux;
                         }
                         | expressao_multiplicativa DIV expressao_cast       {
                             ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                            aux->expType = DIV;
+                            aux->expType = S_DIV;
                             aux->left = $1;
                             aux->right = $3;
                             $$ = aux;
                         }
                         | expressao_multiplicativa REMAINDER expressao_cast {
                             ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                            aux->expType = REMAINDER;
+                            aux->expType = S_REMAINDER;
                             aux->left = $1;
                             aux->right = $3;
                             $$ = aux;
@@ -515,46 +591,136 @@ expressao_multiplicativa: expressao_cast                                    { $$
 ;
 
 //Expressão Cast
-expressao_cast: expressao_unaria                                  {}
-              | L_PAREN tipo loop_ponteiro R_PAREN expressao_cast {}
+expressao_cast: expressao_unaria                                  { $$ = $1; }
+              | L_PAREN tipo loop_ponteiro R_PAREN expressao_cast { $$ = NULL; }
 ;
 
 //Expressão Unária
-expressao_unaria: expressao_pos_fixa         {}
-                | INC expressao_unaria       {}
-                | DEC expressao_unaria       {}
-                | BITWISE_AND expressao_cast {}
-                | MULTIPLY expressao_cast    {}
-                | PLUS expressao_cast        {}
-                | MINUS expressao_cast       {}
-                | BITWISE_NOT expressao_cast {}
-                | NOT expressao_cast         {}
+expressao_unaria: expressao_pos_fixa         { $$ = $1; }
+                | INC expressao_unaria       {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_INC;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
+                | DEC expressao_unaria       {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_DEC;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
+                | BITWISE_AND expressao_cast {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_BITWISE_AND;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
+                | MULTIPLY expressao_cast    {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_MULTIPLY;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
+                | PLUS expressao_cast        {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_PLUS;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
+                | MINUS expressao_cast       {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_MINUS;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
+                | BITWISE_NOT expressao_cast {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_BITWISE_NOT;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
+                | NOT expressao_cast         {
+                    ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                    aux->expType = S_EXP_UN_NOT;
+                    aux->left = NULL;
+                    aux->right = $2;
+                    $$ = aux;
+                }
 ;
 
 //Expressão Pós-Fixa
-expressao_pos_fixa: expressao_primaria {}
-                  | expressao_pos_fixa expressao_pos_fixa_prime {}
+expressao_pos_fixa: expressao_primaria                          { $$ = $1; }
+                  | expressao_pos_fixa expressao_pos_fixa_prime {
+                      $2->left = $1;
+                      $$ = $2;
+                  }
 ;
 
-expressao_pos_fixa_prime: L_SQUARE_BRACKET expressao R_SQUARE_BRACKET {}
-                        | INC {}
-                        | DEC {}
-                        | L_PAREN expressao_pos_fixa_double_prime R_PAREN {}
+expressao_pos_fixa_prime:
+                          L_SQUARE_BRACKET expressao R_SQUARE_BRACKET {
+                              ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                              aux->expType = S_EXP_POS_VECTOR;
+                              aux->left = NULL;
+                              aux->right = NULL;
+
+                              aux->ternaryExpression = $2;
+
+                              $$ = aux;
+                          }
+                        | INC {
+                            ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                            aux->expType = S_EXP_POS_INC;
+                            aux->left = NULL;
+                            aux->right = NULL;
+                            $$ = aux;
+                        }
+                        | DEC {
+                            ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                            aux->expType = S_EXP_POS_DEC;
+                            aux->left = NULL;
+                            aux->right = NULL;
+                            $$ = aux;
+                        }
+                        | L_PAREN expressao_pos_fixa_double_prime R_PAREN { 
+                            ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                            aux->expType = S_EXP_POS;
+                            aux->left = NULL;
+                            aux->right = NULL;
+
+                            aux->ternaryExpression = $2;
+                            
+                            $$ = aux;
+                         }
 ;
 
-expressao_pos_fixa_double_prime: expressao_atribuicao l_expressao_pos_fixa {}
-                               |                                           {}
+expressao_pos_fixa_double_prime:
+                                 expressao_atribuicao l_expressao_pos_fixa {
+                                     $1->left = $2;
+                                     $$ = $1;
+                                 }
+                               |                                           { $$ = NULL; }
 ;
 
-l_expressao_pos_fixa: COMMA expressao_atribuicao l_expressao_pos_fixa {}
-                    |                                                 {}
+l_expressao_pos_fixa:
+                     COMMA expressao_atribuicao l_expressao_pos_fixa {
+                         $2->left = $3;
+                         $$ = $2;
+                     }
+                    |                                                { $$ = NULL; }
 ;
 
 //Expressão Primária
 expressao_primaria:
                   IDENTIFIER                {
                       ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                      aux->expType = IDENTIFIER;
+                      aux->expType = S_IDENTIFIER;
                       aux->left = NULL;
                       aux->right = NULL;
                       $$ = aux;
@@ -562,14 +728,14 @@ expressao_primaria:
                   | numero                    { $$ = $1; }
                   | CHARACTER                 {
                         ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                        aux->expType = CHARACTER;
+                        aux->expType = S_CHARACTER;
                         aux->left = NULL;
                         aux->right = NULL;
                         $$ = aux;
                   }
                   | STRING                    {
                          ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-                        aux->expType = STRING;
+                        aux->expType = S_STRING;
                         aux->left = NULL;
                         aux->right = NULL;
                         $$ = aux;
@@ -581,21 +747,21 @@ expressao_primaria:
 numero:
       NUM_INTEGER {
           ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-          aux->expType = NUM_INTEGER;
+          aux->expType = S_NUM_INTEGER;
           aux->left = NULL;
           aux->right = NULL;
           $$ = aux;
       }
       | NUM_HEXA    {
             ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-            aux->expType = NUM_HEXA;
+            aux->expType = S_NUM_HEXA;
             aux->left = NULL;
             aux->right = NULL;
             $$ = aux;
       }
       | NUM_OCTAL   {
           ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
-            aux->expType = NUM_OCTAL;
+            aux->expType = S_NUM_OCTAL;
             aux->left = NULL;
             aux->right = NULL;
             $$ = aux;
@@ -622,7 +788,7 @@ opc_atribuicao: ASSIGN expressao_atribuicao {}
 
 %%
 
-void yyerror(char const *s) {
+void yyerror(ProgramNode *ast, char const *s) {
     hasSyntaxError = true;
     unsigned columnNumber = columnCounter - strlen(yytext);
     unsigned lineNumber = lineCounter;
@@ -654,16 +820,4 @@ void yyerror(char const *s) {
     printf("^");
 
     exit(1);
-}
-
-int main() {
-    fseek(stdin, 0, SEEK_END);
-    int fSize = ftell(stdin);
-    rewind(stdin);
-
-    lineError = (char *) calloc(fSize, sizeof(char));
-
-    yyparse();
-
-    return 0;
 }

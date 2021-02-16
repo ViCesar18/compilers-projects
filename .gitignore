@@ -8,6 +8,7 @@ dcmat
 l14e1
 lexico
 sintatico
+semantico
 
 #Códigos Gerados pelo LEX
 */lex.yy.c

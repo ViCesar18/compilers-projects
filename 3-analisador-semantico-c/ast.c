@@ -1,7 +1,6 @@
 #include "ast.h"
-#include "sintatico.tab.h"
 
-void rpnWalk(TreeNode *aux) {
+/*void rpnWalk(TreeNode *aux) {
     if(aux) {
         rpnWalk(aux->left);
 
@@ -137,7 +136,7 @@ double calculateExpression(TreeNode *aux, double x) {
     }
 
     return -1;
-}
+}*/
 
 void deleteTree(TreeNode *aux) {
     if(aux) {

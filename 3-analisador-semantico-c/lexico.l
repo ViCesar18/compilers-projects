@@ -1,6 +1,7 @@
 %option noyywrap
 
 %{
+    #include "ast.h"
     #include "sintatico.tab.h"
     #include <stdbool.h>
 
@@ -410,6 +411,9 @@
 [_a-zA-Z][_a-zA-Z0-9]* {
     columnCounter += strlen(yytext);
     strcat(lineError, yytext);
+
+    yylval.id = (char *) malloc(sizeof(yytext) + 1);
+    strcpy(yylval.id, yytext);
 
     return IDENTIFIER;
 }

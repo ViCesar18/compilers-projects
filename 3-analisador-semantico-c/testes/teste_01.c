@@ -1,13 +1,9 @@
-int
-mod (int a, int b)
+int a, b;
+char alo;
+void teste();
+#define oieee 2
 
+int mod ()
 {
   return (a % b);
-}
-
-int
-main ()
-{
-  mod (1, 2);
-  exit (0);
 }
