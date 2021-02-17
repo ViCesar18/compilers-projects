@@ -17,25 +17,27 @@ int main() {
 
     FunctionNode *listaFuncoes = ast->listaFuncoes;
     while(listaFuncoes != NULL) {
-        if(listaFuncoes->flgDeclaracao == 1) {
-            DeclarationNode *declaration = listaFuncoes->declarations;
+        DeclarationNode *declaration = listaFuncoes->declarations;
 
-            while(declaration != NULL) {
-                printf("%d ", declaration->tipo);
-                if(declaration->tipo == 54 || declaration->flgPrototipo == 1) {
-                    printf("%s ", declaration->nome);
-                } else {
-                    VariableNode *variable = declaration->variables;
-                    while(variable != NULL) {
-                        printf("%s ", variable->nome);
-                        variable = variable->next;
-                    }
+        while(declaration != NULL) {
+            
+            if(!listaFuncoes->flgDeclaracao) {
+                printf("Função: %s\n", listaFuncoes->nome);
+
+                DeclarationNode *params = listaFuncoes->parameters;
+                printf("Parametros: ");
+                while(params != NULL) {
+                    printf("%d %s, ", params->tipo, params->nome);
+                    params = params->next;
                 }
-                printf("\n");
-                declaration = declaration->next;
+                printf("\n%d %s\n", declaration->tipo, declaration->nome);
+            } else {
+                printf("%d %s\n", declaration->tipo, declaration->nome);
             }
+
+            declaration = declaration->next;
         }
-        printf("\n");
+
         listaFuncoes = listaFuncoes->next;
     }
     

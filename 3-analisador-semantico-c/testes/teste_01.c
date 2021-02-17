@@ -3,7 +3,10 @@ char alo;
 void teste();
 #define oieee 2
 
-int mod ()
+int mod (int x, int y, int z)
 {
+  int eae;
+  char deboa = 'a';
+
   return (a % b);
 }

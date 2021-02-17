@@ -27,7 +27,6 @@
     ExpressionNode *expressao;
     CommandNode *comando;
     FunctionNode *funcao;
-    VariableNode *variavel;
     DeclarationNode *declaracao;
     int number;
     char *id;
@@ -132,12 +131,18 @@
 %type <expressao> numero
 %type <id> IDENTIFIER
 
+%type <declaracao> loop_variaveis
 %type <declaracao> declaracao_prototipos
-%type <variavel> declaracao_variaveis_double_prime
-%type <variavel> declaracao_variaveis_prime
+%type <declaracao> declaracao_variaveis_double_prime
+%type <declaracao> declaracao_variaveis_prime
 %type <declaracao> declaracao_variaveis
 %type <declaracao> declaracoes
 %type <number> tipo
+
+%type <declaracao> parametros
+%type <declaracao> parametros_prime
+%type <declaracao> parametros_double_prime
+%type <declaracao> opc_param
 
 %start S
 
@@ -162,6 +167,7 @@ programa:
             aux->flgDeclaracao = 1;
 
             aux->declarations = $1;
+            aux->parameters = NULL;
 
             aux->next = $2;
             $$ = aux;
@@ -178,11 +184,10 @@ declaracoes:
              NUMBER_SIGN DEFINE IDENTIFIER expressao {
                  DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
                  aux->tipo = S_DEFINE_DECL;
-                 aux->variables = NULL;
-                 aux->flgPrototipo = 0;
-
                  aux->nome = (char *) malloc(sizeof($3) + 1);
                  strcpy(aux->nome, $3);
+
+                 aux->tipoDeclaracao = D_CONSTANTE;
 
                  aux->expressao = $4;
                  aux->next = NULL;
@@ -198,10 +203,15 @@ funcao: tipo loop_ponteiro IDENTIFIER parametros L_CURLY_BRACKET loop_variaveis 
 
     aux->flgDeclaracao = 0;
 
+    aux->tipo = $1;
+
     aux->nome = (char *) malloc(sizeof($3) + 1);
     strcpy(aux->nome, $3);
 
     aux->tabelaSimbolos = createHashTable(211);
+
+    aux->declarations = $6;
+    aux->parameters = $4;
 
     aux->listaComandos = $7;
 
@@ -212,21 +222,24 @@ funcao: tipo loop_ponteiro IDENTIFIER parametros L_CURLY_BRACKET loop_variaveis 
 
 //Declaração de Variáveis
 declaracao_variaveis: tipo declaracao_variaveis_prime SEMICOLON {
-    DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
-    aux->tipo = $1;
-    aux->variables = $2;
-    aux->flgPrototipo = 0;
-    aux->nome = NULL;
-    aux->expressao = NULL;
-    aux->next = NULL;
-    $$ = aux;
+    DeclarationNode *declaracao = $2;
+    while(declaracao != NULL) {
+        declaracao->tipo = $1;
+        declaracao = declaracao->next;
+    }
+    $$ = $2;
 }
 ;
 
 declaracao_variaveis_prime: loop_ponteiro IDENTIFIER loop_vetor opc_atribuicao declaracao_variaveis_double_prime {
-    VariableNode *aux = (VariableNode *) malloc(sizeof(struct variable));
+    DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
+
     aux->nome = (char *) malloc(sizeof($2) + 1);
     strcpy(aux->nome, $2);
+
+    aux->tipoDeclaracao = D_VARIAVEL;
+
+    aux->expressao = NULL;
     aux->next = $5;
     $$ = aux;
 }
@@ -239,12 +252,12 @@ declaracao_variaveis_double_prime: COMMA declaracao_variaveis_prime { $$ = $2; }
 //Declaração de Protótipos
 declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {
     DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
-    aux->tipo = $1;
-    aux->variables = NULL;
-    aux->flgPrototipo = 1;
 
+    aux->tipo = $1;
     aux->nome = (char *) malloc(sizeof($3) + 1);
     strcpy(aux->nome, $3);
+
+    aux->tipoDeclaracao = D_PROTOTIPO;
 
     aux->expressao = NULL;
     aux->next = NULL;
@@ -253,18 +266,30 @@ declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {
 ;
 
 //Parâmetros
-parametros: L_PAREN opc_param R_PAREN {}
+parametros: L_PAREN opc_param R_PAREN { $$ = $2; }
 ;
 
-parametros_prime: tipo loop_ponteiro IDENTIFIER opc_atribuicao parametros_double_prime {}
+parametros_prime: tipo loop_ponteiro IDENTIFIER opc_atribuicao parametros_double_prime {
+    DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
+
+    aux->tipo = $1;
+    aux->nome = (char *) malloc(sizeof($3) + 1);
+    strcpy(aux->nome, $3);
+
+    aux->tipoDeclaracao = D_PARAMETRO;
+
+    aux->expressao = NULL;
+    aux->next = $5;
+    $$ = aux;
+}
 ;
 
-parametros_double_prime: COMMA parametros_prime {}
-                       |                        {}
+parametros_double_prime: COMMA parametros_prime { $$ = $2; }
+                       |                        { $$ = NULL; }
 ;
 
-opc_param: parametros_prime {}
-         |                  {}
+opc_param: parametros_prime { $$ = $1; }
+         |                  { $$ = NULL; }
 ;
 
 //Tipo
@@ -773,8 +798,12 @@ loop_ponteiro: MULTIPLY loop_ponteiro {}
              |                        {}
 ;
 
-loop_variaveis: declaracao_variaveis loop_variaveis {}
-             |                                      {}
+loop_variaveis:
+               declaracao_variaveis loop_variaveis {
+                   $1->next = $2;
+                   $$ = $1;
+               }
+             |                                      { $$ = NULL; }
 ;
 
 loop_vetor: L_SQUARE_BRACKET expressao R_SQUARE_BRACKET loop_vetor {}
