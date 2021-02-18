@@ -1,4 +1,7 @@
-#include "hash_table.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "ast.h"
 
 HashTableImp createHashTable(int size) {
     HashTableImp hash = (HashTableImp) malloc(sizeof(struct HashTableSt));
@@ -9,7 +12,10 @@ HashTableImp createHashTable(int size) {
     return hash;
 }
 
-void insertHashTable(HashTableImp hash, int type, char *id) {
+void insertHashTable(HashTableImp hash, DeclarationNode *declaracao) {
+    char *id = declaracao->nome;
+    int type = declaracao->tipo;
+
     int idSize = strlen(id);
     char *idAlocado;
 
@@ -24,9 +30,8 @@ void insertHashTable(HashTableImp hash, int type, char *id) {
     int position = key % hash->size;
 
     ListNodeImp node = (ListNodeImp) malloc(sizeof(struct ListNodeSt));
-    node->id = idAlocado;
+    node->declaracao = declaracao;
     node->key = key;
-    node->type = type;
     node->next = NULL;
 
     if(hash->list[position] == NULL) {
@@ -42,7 +47,10 @@ void insertHashTable(HashTableImp hash, int type, char *id) {
     }
 }
 
-int existInHashTable(HashTableImp hash, int type, char *id) {
+DeclarationNode *existInHashTable(HashTableImp hash, DeclarationNode *declaracao) {
+    char *id = declaracao->nome;
+    int type = declaracao->tipo;
+
     int idSize = strlen(id);
     int key = 0;
 
@@ -55,17 +63,17 @@ int existInHashTable(HashTableImp hash, int type, char *id) {
     ListNodeImp node = hash->list[position];
 
     if(node == NULL) {
-        return -1;
+        return NULL;
     }
     else {
         while(node != NULL) {
-            if(!strcmp(node->id, id)) {
-                return node->type;
+            if(!strcmp(node->declaracao->nome, id) && node->declaracao->tipoDeclaracao == declaracao->tipoDeclaracao) {
+                return node->declaracao;
             }
             node = node->next;
         }
 
-        return -1;
+        return NULL;
     }
 }
 
@@ -75,7 +83,6 @@ void destroyHashTable(HashTableImp hash) {
 
         while(node != NULL) {
             ListNodeImp nextNode = node->next;
-            free(node->id);
             free(node);
             node = nextNode;
         }

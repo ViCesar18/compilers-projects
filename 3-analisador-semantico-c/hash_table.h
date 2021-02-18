@@ -5,9 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct declaration DeclarationNode;
+
 typedef struct ListNodeSt {
-    int type;
-    char *id;
+    DeclarationNode *declaracao;
     int key;
     struct ListNodeSt *next;
 } *ListNodeImp;
@@ -21,10 +22,10 @@ typedef struct HashTableSt {
 HashTableImp createHashTable(int size);
 
 //Gera uma chave e insere o elemento na HashTable
-void insertHashTable(HashTableImp hash, int type, char *id);
+void insertHashTable(HashTableImp hash, DeclarationNode *declaracao);
 
-//Retorna o tipo do elemento caso ele já exista na HashTable, ou -1 caso não exista
-int existInHashTable(HashTableImp hash, int type, char *id);
+//Retorna declaração anterior caso ele já exista na HashTable, ou NULL caso não exista
+DeclarationNode *existInHashTable(HashTableImp hash, DeclarationNode *declaracao);
 
 //Desaloca a memória de uma HashTable
 void destroyHashTable(HashTableImp hash);

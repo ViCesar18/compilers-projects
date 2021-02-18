@@ -12,6 +12,7 @@
 
     extern unsigned lineCounter;
     extern unsigned columnCounter;
+    extern unsigned lineCounterId;
 
     extern char *lineError;
 
@@ -187,6 +188,10 @@ declaracoes:
                  aux->nome = (char *) malloc(sizeof($3) + 1);
                  strcpy(aux->nome, $3);
 
+                 aux->line = lineCounterId;
+                 aux->linhaDeclaracao = (char *) malloc(sizeof(char) * strlen(lineError) + 1);
+                 strcpy(aux->linhaDeclaracao, lineError);
+
                  aux->tipoDeclaracao = D_CONSTANTE;
 
                  aux->expressao = $4;
@@ -237,6 +242,10 @@ declaracao_variaveis_prime: loop_ponteiro IDENTIFIER loop_vetor opc_atribuicao d
     aux->nome = (char *) malloc(sizeof($2) + 1);
     strcpy(aux->nome, $2);
 
+    aux->line = lineCounterId;
+    aux->linhaDeclaracao = (char *) malloc(sizeof(char) * strlen(lineError) + 1);
+    strcpy(aux->linhaDeclaracao, lineError);
+
     aux->tipoDeclaracao = D_VARIAVEL;
 
     aux->expressao = NULL;
@@ -256,6 +265,10 @@ declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {
     aux->tipo = $1;
     aux->nome = (char *) malloc(sizeof($3) + 1);
     strcpy(aux->nome, $3);
+
+    aux->line = lineCounterId;
+    aux->linhaDeclaracao = (char *) malloc(sizeof(char) * strlen(lineError) + 1);
+    strcpy(aux->linhaDeclaracao, lineError);
 
     aux->tipoDeclaracao = D_PROTOTIPO;
 
@@ -277,6 +290,10 @@ parametros_prime: tipo loop_ponteiro IDENTIFIER opc_atribuicao parametros_double
     strcpy(aux->nome, $3);
 
     aux->tipoDeclaracao = D_PARAMETRO;
+
+    aux->line = lineCounterId;
+    aux->linhaDeclaracao = (char *) malloc(sizeof(char) * strlen(lineError) + 1);
+    strcpy(aux->linhaDeclaracao, lineError);
 
     aux->expressao = NULL;
     aux->next = $5;

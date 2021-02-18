@@ -33,6 +33,10 @@ struct declaration {
     int tipo;
     char *nome;
 
+    int line;
+    int column;
+    char *linhaDeclaracao;
+
     int tipoDeclaracao;
 
     ExpressionNode *expressao;

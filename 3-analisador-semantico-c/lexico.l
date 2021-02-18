@@ -10,6 +10,8 @@
     unsigned commentStartLine = 0;
     unsigned commentStartColumn = 0;
 
+    unsigned lineCounterId = 0;
+
     char *lineError;
 
     bool hasSyntaxError = false;
@@ -411,6 +413,8 @@
 [_a-zA-Z][_a-zA-Z0-9]* {
     columnCounter += strlen(yytext);
     strcat(lineError, yytext);
+
+    lineCounterId = lineCounter;
 
     yylval.id = (char *) malloc(sizeof(yytext) + 1);
     strcpy(yylval.id, yytext);
