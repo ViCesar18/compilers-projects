@@ -1,5 +1,6 @@
-void f ()
+void f()
 {
-  {{;}}
-  return (1);
+    int i[0];
+
+    return;
 }

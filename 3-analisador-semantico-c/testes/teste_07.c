@@ -1,5 +1,8 @@
-void f ()
+void f(int a);
+
+void f(char a)
 {
-  {{};}
-  return 1;
+    int i[0];
+
+    return;
 }

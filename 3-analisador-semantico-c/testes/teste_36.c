@@ -1,0 +1,1 @@
+#define constante 1 >> 32

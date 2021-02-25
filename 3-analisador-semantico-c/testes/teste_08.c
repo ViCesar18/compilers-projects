@@ -1,7 +1,8 @@
-int f () { return 0; }
+int f(char* a);
 
-void
-test ()
+void f(char* a)
 {
-    int j = { f() };
+    int i[0];
+
+    return;
 }

@@ -1,12 +1,7 @@
-int a, b;
-char alo;
-void teste();
-#define oieee 2
-
-int mod (int x, int y, int z, void haha)
+void f()
 {
-  int eae;
-  char deboa = 'a';
+   int i;
+   int i;
 
-  return (a % b);
+   return;
 }
