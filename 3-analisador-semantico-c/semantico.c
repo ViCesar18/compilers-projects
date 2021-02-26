@@ -6,6 +6,11 @@ bool flgDivZero = false;
 
 extern unsigned columnDivision;
 
+extern char* lineError;
+
+extern unsigned lineReturn;
+extern unsigned columnReturn;
+
 void encontrarColuna(DeclarationNode *declaracao) {
     char *auxString = (char *) malloc(sizeof(char) * strlen(declaracao->nome) + 1);
 
@@ -70,7 +75,7 @@ void verificarPrototipos(ProgramNode *ast, FunctionNode *funcao) {
         if(prototipo->tipo != funcao->tipo || prototipo->pointer != funcao->pointer) {
             printf("error:semantic:%d:%d: conflicting types for '%s'\n", funcao->line, funcao->column - 1, funcao->nome);
             printf("%s\n", funcao->linhaDeclaracao);
-            for(int i = 0; i < funcao->column - 1 - strlen(aux->nome); i++) {
+            for(int i = 0; i < funcao->column - 1 - strlen(funcao->nome); i++) {
                 printf(" ");
             }
             printf("^");
@@ -85,7 +90,7 @@ void verificarPrototipos(ProgramNode *ast, FunctionNode *funcao) {
         if(nParamPrototipo < nParamFuncao) {
             printf("error:semantic:%d:%d: prototype for '%s' declares fewer arguments\n", funcao->line, funcao->column - 1, funcao->nome);
             printf("%s\n", funcao->linhaDeclaracao);
-            for(int i = 0; i < funcao->column - 1 - strlen(aux->nome); i++) {
+            for(int i = 0; i < funcao->column - 1 - strlen(funcao->nome); i++) {
                 printf(" ");
             }
             printf("^");
@@ -96,7 +101,7 @@ void verificarPrototipos(ProgramNode *ast, FunctionNode *funcao) {
         if(nParamPrototipo > nParamFuncao) {
             printf("error:semantic:%d:%d: prototype for '%s' declares more arguments\n", funcao->line, funcao->column - 1, funcao->nome);
             printf("%s\n", funcao->linhaDeclaracao);
-            for(int i = 0; i < funcao->column - 1 - strlen(aux->nome); i++) {
+            for(int i = 0; i < funcao->column - 1 - strlen(funcao->nome); i++) {
                 printf(" ");
             }
             printf("^");
@@ -113,9 +118,9 @@ void verificarPrototipos(ProgramNode *ast, FunctionNode *funcao) {
                     encontrarColuna(parametroFuncao);
                 }
 
-                printf("error:semantic:%d:%d: argument '%s' does not match prototype\n", funcao->line, parametroFuncao->column + 1 - (int) strlen(aux->nome), parametroFuncao->nome);
+                printf("error:semantic:%d:%d: argument '%s' does not match prototype\n", funcao->line, parametroFuncao->column + 1 - (int) strlen(funcao->nome), parametroFuncao->nome);
                 printf("%s\n", funcao->linhaDeclaracao);
-                for(int i = 0; i < parametroFuncao->column - strlen(aux->nome); i++) {
+                for(int i = 0; i < parametroFuncao->column - strlen(funcao->nome); i++) {
                     printf(" ");
                 }
                 printf("^");
@@ -180,6 +185,64 @@ void verificarVetor(DeclarationNode *declaracao, HashTableImp simbolos) {
     }
 }
 
+int existeRetorno(CommandNode *comando, char **returnLine) {
+    while(comando != NULL) {
+        if(comando->commandType == S_RETURN) {
+            if(comando->exp != NULL) {
+                return 1;
+            }
+
+            if(returnLine != NULL) {
+                *returnLine = malloc(strlen(comando->returnLine) + 1);
+                strcpy(*returnLine, comando->returnLine);
+            }
+
+            return 0;
+        }
+
+        comando = comando->next;
+    }
+
+    return -1;
+}
+
+void verificarRetornoFuncao(FunctionNode *funcao) {
+    if(funcao->tipo != S_VOID && (funcao->listaComandos == NULL || existeRetorno(funcao->listaComandos, NULL) == -1)) {
+        printf("error:semantic:%d:%d: no return statement in function returning non-void\n", funcao->line, funcao->column - 1);
+        printf("%s\n", funcao->linhaDeclaracao);
+        for(int i = 0; i < funcao->column - 1 - strlen(funcao->nome); i++) {
+            printf(" ");
+        }
+        printf("^");
+        
+        exit(1);
+    }
+
+    if(funcao->tipo == S_VOID && funcao->listaComandos != NULL && existeRetorno(funcao->listaComandos, NULL)) {
+        printf("error:semantic:%d:%d: return with a value, in function returning void\n", funcao->line, funcao->column - 1);
+        printf("%s\n", funcao->linhaDeclaracao);
+        for(int i = 0; i < funcao->column - 1 - strlen(funcao->nome); i++) {
+            printf(" ");
+        }
+        printf("^");
+        
+        exit(1);
+    }
+
+    char *returnLine = NULL;
+
+    if(funcao->tipo != S_VOID && existeRetorno(funcao->listaComandos, &returnLine) == 0) {
+        printf("error:semantic:%d:%d: return with no value, in function returning non-void\n", lineReturn, columnReturn);
+        printf("%s\n", returnLine);
+        for(int i = 0; i < columnReturn - 1; i++) {
+            printf(" ");
+        }
+        printf("^");
+        
+        exit(1);
+    }
+}
+
 void typeChecking(ProgramNode *ast) {
     FunctionNode *funcao = ast->listaFuncoes;
     while(funcao != NULL) {
@@ -191,6 +254,8 @@ void typeChecking(ProgramNode *ast) {
                 declaracao->value = calculateExpression(declaracao->expressao, funcao->tabelaSimbolos);
                 verificarDivisaoZero(declaracao);
             }
+
+            verificarRetornoFuncao(funcao);
 
             verificarPrototipos(ast, funcao);
             typeCheckingPrime(funcao->parameters, funcao->tabelaSimbolos);
@@ -282,7 +347,6 @@ void typeCheckingPrime(DeclarationNode *declaracao, HashTableImp simbolos) {
 }
 
 int main() {
-    extern char* lineError;
     extern char* lineBlock;
 
     fseek(stdin, 0, SEEK_END);

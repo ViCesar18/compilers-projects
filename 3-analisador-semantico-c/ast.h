@@ -32,6 +32,10 @@ struct expression {
     ExpressionNode *left;
     ExpressionNode *right;
 
+    unsigned line;
+    unsigned column;
+    char *linhaErro;
+
     // Caso seja vetor
     ExpressionNode *next;
 };
@@ -68,6 +72,8 @@ struct command {
 
     CommandNode *then;
     CommandNode *Else;
+
+    char *returnLine;
 
     CommandNode *next;
 };

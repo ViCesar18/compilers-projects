@@ -20,6 +20,9 @@
 
     unsigned columnDivision = 0;
 
+    unsigned lineReturn = 0;
+    unsigned columnReturn = 0;
+
     bool hasSyntaxError = false;
 %}
 
@@ -54,6 +57,9 @@
 "return" {
     columnCounter += strlen(yytext);
     strcat(lineError, yytext);
+
+    lineReturn = lineCounter;
+    columnReturn = columnCounter - 6;
 
     return RETURN;
 }

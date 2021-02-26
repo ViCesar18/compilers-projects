@@ -123,8 +123,18 @@ int calculateExpression(ExpressionNode *aux, HashTableImp hash) {
             }
             case S_IDENTIFIER: {
                 DeclarationNode *declaracao = findDeclaration(hash, aux->nome);
+                
                 if(declaracao != NULL) {
                     return declaracao->value;
+                } else {
+                    printf("error:semantic:%d:%d: '%s' undeclared", aux->line, aux->column, aux->nome);
+                    printf("%s\n", aux->linhaErro);
+                    for(int i = 0; i < aux->column - 1; i++) {
+                        printf(" ");
+                    }
+                    printf("^");
+                    
+                    exit(1);
                 }
                 break;
             }

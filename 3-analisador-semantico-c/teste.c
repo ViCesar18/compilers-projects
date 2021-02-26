@@ -1,6 +1,13 @@
-void f()
-{
-    int i[0 - 2];
+int
+mod (int a, int b)
 
-    return;
+{
+  return (a % b);
+}
+
+int
+main ()
+{
+  mod (1, 2);
+  exit (0);
 }

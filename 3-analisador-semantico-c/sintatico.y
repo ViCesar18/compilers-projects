@@ -429,6 +429,10 @@ lista_comandos:
                   CommandNode *aux = (CommandNode *) malloc(sizeof(struct command));
                   aux->commandType = S_RETURN;
                   aux->exp = $2;
+
+                  aux->returnLine = (char *) malloc(sizeof(char) * strlen(lineError) + 1);
+                  strcpy(aux->returnLine, lineError);
+
                   aux->next = NULL;
                   $$ = aux;
               }
@@ -804,6 +808,11 @@ expressao_primaria:
 
                       aux->nome = (char *) malloc(sizeof(char) * strlen($1));
                       strcpy(aux->nome, $1);
+                      
+                      aux->line = lineCounter;
+                      aux->column = columnCounter;
+                      aux->linhaErro = (char *) malloc(strlen(lineError) + 1);
+                      strcpy(aux->linhaErro, lineError);
 
                       aux->left = NULL;
                       aux->right = NULL;
@@ -818,7 +827,7 @@ expressao_primaria:
                         $$ = aux;
                   }
                   | STRING                    {
-                         ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
+                        ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
                         aux->expType = S_STRING;
                         aux->left = NULL;
                         aux->right = NULL;
