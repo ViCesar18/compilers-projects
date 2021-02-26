@@ -1,8 +1,6 @@
-void f(int a);
-
-void f(int *a)
+void f()
 {
-    int i[0];
+    int i[0 - 2];
 
     return;
 }

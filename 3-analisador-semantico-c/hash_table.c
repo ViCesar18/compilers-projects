@@ -75,6 +75,33 @@ DeclarationNode *existInHashTable(HashTableImp hash, DeclarationNode *declaracao
     }
 }
 
+DeclarationNode *findDeclaration(HashTableImp hash, char *nome) {
+    int nomeSize = strlen(nome);
+    int key = 0;
+
+    for(int i = 0; i < nomeSize; i++) {
+        key += nome[i];
+    }
+
+    int position = key % hash->size;
+
+    ListNodeImp node = hash->list[position];
+
+    if(node == NULL) {
+        return NULL;
+    }
+    else {
+        while(node != NULL) {
+            if(!strcmp(node->declaracao->nome, nome)) {
+                return node->declaracao;
+            }
+            node = node->next;
+        }
+
+        return NULL;
+    }
+}
+
 void destroyHashTable(HashTableImp hash) {
     for(int i = 0; i < hash->size; i++) {
         ListNodeImp node = hash->list[i];

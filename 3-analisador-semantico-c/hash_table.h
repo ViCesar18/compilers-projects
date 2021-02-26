@@ -27,6 +27,9 @@ void insertHashTable(HashTableImp hash, DeclarationNode *declaracao);
 //Retorna declaração anterior caso ele já exista na HashTable, ou NULL caso não exista
 DeclarationNode *existInHashTable(HashTableImp hash, DeclarationNode *declaracao);
 
+//Retorna declaração baseado no nome da variável
+DeclarationNode *findDeclaration(HashTableImp hash, char *nome);
+
 //Desaloca a memória de uma HashTable
 void destroyHashTable(HashTableImp hash);
 

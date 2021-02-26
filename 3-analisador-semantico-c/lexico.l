@@ -18,6 +18,8 @@
     unsigned columnFunction = 0;
     bool flgLineFunction = false;
 
+    unsigned columnDivision = 0;
+
     bool hasSyntaxError = false;
 %}
 
@@ -155,6 +157,8 @@
 "/" {
     columnCounter += strlen(yytext);
     strcat(lineError, yytext);
+
+    columnDivision = columnCounter;
 
     return DIV;
 }
@@ -435,6 +439,8 @@
 0|[1-9][0-9]* {
     columnCounter += strlen(yytext);
     strcat(lineError, yytext);
+
+    yylval.number = atoi(yytext);
 
     return NUM_INTEGER;
 }

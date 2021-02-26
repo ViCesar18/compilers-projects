@@ -2,6 +2,10 @@
 #include "ast.h"
 #include "sintatico.tab.h"
 
+bool flgDivZero = false;
+
+extern unsigned columnDivision;
+
 void encontrarColuna(DeclarationNode *declaracao) {
     char *auxString = (char *) malloc(sizeof(char) * strlen(declaracao->nome) + 1);
 
@@ -23,6 +27,12 @@ void encontrarColuna(DeclarationNode *declaracao) {
                 strcpy(auxString, declaracao->nome);
                 strcat(auxString, ")");
                 subString = strstr(declaracao->linhaDeclaracao, auxString);
+
+                if(subString == NULL) {
+                    strcpy(auxString, declaracao->nome);
+                    strcat(auxString, "[");
+                    subString = strstr(declaracao->linhaDeclaracao, auxString);
+                }
             }
         }
     }
@@ -53,10 +63,22 @@ void verificarPrototipos(ProgramNode *ast, FunctionNode *funcao) {
     aux->nome = funcao->nome;
     aux->tipoDeclaracao = D_PROTOTIPO;
 
-    DeclarationNode *declaracaoAnterior = existInHashTable(ast->tabelaSimbolosGlobal, aux);
+    DeclarationNode *prototipo = existInHashTable(ast->tabelaSimbolosGlobal, aux);
 
-    if(declaracaoAnterior != NULL) {
-        int nParamPrototipo = numeroParametros(declaracaoAnterior->parameters);
+    if(prototipo != NULL) {
+        // Verifica o tipo do retorno da função
+        if(prototipo->tipo != funcao->tipo || prototipo->pointer != funcao->pointer) {
+            printf("error:semantic:%d:%d: conflicting types for '%s'\n", funcao->line, funcao->column - 1, funcao->nome);
+            printf("%s\n", funcao->linhaDeclaracao);
+            for(int i = 0; i < funcao->column - 1 - strlen(aux->nome); i++) {
+                printf(" ");
+            }
+            printf("^");
+            
+            exit(1);
+        }
+
+        int nParamPrototipo = numeroParametros(prototipo->parameters);
         int nParamFuncao = numeroParametros(funcao->parameters);
 
         // Verifica a quantidade de parâmetros
@@ -84,36 +106,101 @@ void verificarPrototipos(ProgramNode *ast, FunctionNode *funcao) {
 
         // Verifica o tipo dos parâmetros
         DeclarationNode *parametroFuncao = funcao->parameters;
-        DeclarationNode *parametroPrototipo = declaracaoAnterior->parameters;
+        DeclarationNode *parametroPrototipo = prototipo->parameters;
         while(parametroFuncao != NULL && parametroPrototipo != NULL) {
             if(parametroPrototipo->tipo != parametroFuncao->tipo || parametroPrototipo->pointer != parametroFuncao->pointer) {
-                printf("error:semantic:%d:%d: argument '%s' does not match prototype\n", funcao->line, funcao->column - 1, parametroFuncao->nome);
+                if(parametroFuncao->column == 0) {
+                    encontrarColuna(parametroFuncao);
+                }
+
+                printf("error:semantic:%d:%d: argument '%s' does not match prototype\n", funcao->line, parametroFuncao->column + 1 - (int) strlen(aux->nome), parametroFuncao->nome);
                 printf("%s\n", funcao->linhaDeclaracao);
                 for(int i = 0; i < parametroFuncao->column - strlen(aux->nome); i++) {
                     printf(" ");
                 }
                 printf("^");
+
+                exit(1);
             }
 
             parametroFuncao = parametroFuncao->next;
             parametroPrototipo = parametroPrototipo->next;
+        }
+    }
+}
+
+void verificarDivisaoZero(DeclarationNode *declaracao) {
+    if(flgDivZero) {
+        printf("error:semantic:%d:%d: division by zero\n", declaracao->line, columnDivision - 1);
+        printf("%s\n", declaracao->linhaDeclaracao);
+        for(int i = 0; i < columnDivision - 2; i++) {
+            printf(" ");
+        }
+        printf("^");
+
+        exit(1);
+    }
+}
+
+void verificarVetor(DeclarationNode *declaracao, HashTableImp simbolos) {
+    ExpressionNode *exp = declaracao->array;
+    while(exp != NULL) {
+        int resultado = calculateExpression(exp, simbolos);
+        verificarDivisaoZero(declaracao);
+
+        if(resultado == 0) {
+            if(declaracao->column == 0) {
+                encontrarColuna(declaracao);
+            }
+
+            printf("error:semantic:%d:%d: size of array '%s' is zero\n", declaracao->line, declaracao->column, declaracao->nome);
+            printf("%s\n", declaracao->linhaDeclaracao);
+            for(int i = 0; i < declaracao->column - 1; i++) {
+                printf(" ");
+            }
+            printf("^");
+
+            exit(1);
+        } else if(resultado < 0) {
+            if(declaracao->column == 0) {
+                encontrarColuna(declaracao);
+            }
+
+            printf("error:semantic:%d:%d: size of array '%s' is negative\n", declaracao->line, declaracao->column, declaracao->nome);
+            printf("%s\n", declaracao->linhaDeclaracao);
+            for(int i = 0; i < declaracao->column - 1; i++) {
+                printf(" ");
+            }
+            printf("^");
 
             exit(1);
         }
+
+        exp = exp->next;
     }
 }
 
 void typeChecking(ProgramNode *ast) {
     FunctionNode *funcao = ast->listaFuncoes;
     while(funcao != NULL) {
-        HashTableImp simbolos;
         DeclarationNode *parametros;
         DeclarationNode *declaracao = funcao->declarations;
+
         if(!funcao->flgDeclaracao) {
+            if(declaracao != NULL && declaracao->expressao != NULL) {
+                declaracao->value = calculateExpression(declaracao->expressao, funcao->tabelaSimbolos);
+                verificarDivisaoZero(declaracao);
+            }
+
+            verificarPrototipos(ast, funcao);
             typeCheckingPrime(funcao->parameters, funcao->tabelaSimbolos);
             typeCheckingPrime(declaracao, funcao->tabelaSimbolos);
-            verificarPrototipos(ast, funcao);
         } else {
+            if(declaracao != NULL && declaracao->expressao != NULL) {
+                declaracao->value = calculateExpression(declaracao->expressao, ast->tabelaSimbolosGlobal);
+                verificarDivisaoZero(declaracao);
+            }
+
             typeCheckingPrime(declaracao, ast->tabelaSimbolosGlobal);
         }
 
@@ -124,7 +211,9 @@ void typeChecking(ProgramNode *ast) {
 void typeCheckingPrime(DeclarationNode *declaracao, HashTableImp simbolos) {
     while(declaracao != NULL) {
         // Pega a coluna de todas as declarações
-        encontrarColuna(declaracao);
+        if(declaracao->column == 0) {
+            encontrarColuna(declaracao);
+        }
 
         // Verifica se é void
         if(declaracao->tipo == S_VOID && (declaracao->tipoDeclaracao == D_VARIAVEL || declaracao->tipoDeclaracao == D_PARAMETRO)) {
@@ -153,7 +242,7 @@ void typeCheckingPrime(DeclarationNode *declaracao, HashTableImp simbolos) {
         if(declaracaoAnterior == NULL) {
             insertHashTable(simbolos, declaracao);
         } else {
-            if(declaracaoAnterior->tipo == declaracao->tipo && !strcmp(declaracaoAnterior->nome, declaracao->nome)) {
+            if(declaracaoAnterior->tipo == declaracao->tipo && declaracaoAnterior->pointer == declaracao->pointer && !strcmp(declaracaoAnterior->nome, declaracao->nome)) {
                 printf("error:semantic:%d:%d: variable '%s' already declared, previous declaration in line %d column %d\n",
                 declaracao->line,
                 declaracao->column,
@@ -185,6 +274,9 @@ void typeCheckingPrime(DeclarationNode *declaracao, HashTableImp simbolos) {
                 exit(1);
             }
         }
+
+        verificarVetor(declaracao, simbolos);
+        
         declaracao = declaracao->next;
     }
 }

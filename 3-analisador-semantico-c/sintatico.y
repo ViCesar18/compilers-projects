@@ -138,6 +138,7 @@
 %type <expressao> expressao_primaria
 %type <expressao> numero
 %type <id> IDENTIFIER
+%type <number> NUM_INTEGER
 
 %type <declaracao> loop_variaveis
 %type <declaracao> declaracao_prototipos
@@ -153,6 +154,8 @@
 %type <declaracao> opc_param
 
 %type <number> loop_ponteiro
+
+%type <expressao> loop_vetor
 
 %start S
 
@@ -261,6 +264,8 @@ declaracao_variaveis_prime: loop_ponteiro IDENTIFIER loop_vetor opc_atribuicao d
 
     aux->nome = (char *) malloc(sizeof($2) + 1);
     strcpy(aux->nome, $2);
+
+    aux->array = $3;
 
     aux->line = lineCounterId;
     aux->linhaDeclaracao = (char *) malloc(sizeof(char) * strlen(lineError) + 1);
@@ -796,6 +801,10 @@ expressao_primaria:
                   IDENTIFIER                {
                       ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
                       aux->expType = S_IDENTIFIER;
+
+                      aux->nome = (char *) malloc(sizeof(char) * strlen($1));
+                      strcpy(aux->nome, $1);
+
                       aux->left = NULL;
                       aux->right = NULL;
                       $$ = aux;
@@ -823,6 +832,7 @@ numero:
       NUM_INTEGER {
           ExpressionNode *aux = (ExpressionNode *) malloc(sizeof(struct expression));
           aux->expType = S_NUM_INTEGER;
+          aux->value = $1;
           aux->left = NULL;
           aux->right = NULL;
           $$ = aux;
@@ -856,8 +866,11 @@ loop_variaveis:
              |                                      { $$ = NULL; }
 ;
 
-loop_vetor: L_SQUARE_BRACKET expressao R_SQUARE_BRACKET loop_vetor {}
-             |                                                     {}
+loop_vetor: L_SQUARE_BRACKET expressao R_SQUARE_BRACKET loop_vetor {
+    $2->next = $4;
+    $$ = $2;
+}
+             |                                                     { $$ = NULL; }
 ;
 
 //Opcionais

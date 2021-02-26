@@ -1,5 +1,7 @@
 #include "ast.h"
 
+extern bool flgDivZero;
+
 /*void rpnWalk(TreeNode *aux) {
     if(aux) {
         rpnWalk(aux->left);
@@ -61,72 +63,73 @@
             }
         }
     }
-}
+}*/
 
-double calculateExpression(TreeNode *aux, double x) {
+int calculateExpression(ExpressionNode *aux, HashTableImp hash) {
     if(aux) {
-        double leftValue, rightValue;
+        int leftValue, rightValue;
 
-        leftValue = calculateExpression(aux->left, x);
+        leftValue = calculateExpression(aux->left, hash);
 
-        rightValue = calculateExpression(aux->right, x);
+        rightValue = calculateExpression(aux->right, hash);
 
-        switch(aux->nodeType) {
-            case ADD: {
+        switch(aux->expType) {
+            case S_LOGICAL_OR: {
+                return leftValue || rightValue;
+            }
+            case S_LOGICAL_AND: {
+                return leftValue && rightValue;
+            }
+            case S_EQUAL: {
+                return leftValue == rightValue;
+            }
+            case S_NOT_EQUAL: {
+                return leftValue != rightValue;
+            }
+            case S_LESS_THAN: {
+                return leftValue < rightValue;
+            }
+            case S_LESS_EQUAL: {
+                return leftValue <= rightValue;
+            }
+            case S_GREATER_THAN: {
+                return leftValue > rightValue;
+            }
+            case S_GREATER_EQUAL: {
+                return leftValue >= rightValue;
+            }
+            case S_PLUS: {
                 return leftValue + rightValue;
             }
-            case SUB: {
+            case S_MINUS: {
                 return leftValue - rightValue;
             }
-            case MUL: {
+            case S_MULTIPLY: {
                 return leftValue * rightValue;
             }
-            case DIV: {
+            case S_DIV: {
+                if(rightValue == 0) {
+                    flgDivZero = true;
+                    rightValue = 1;
+                }
+
                 return leftValue / rightValue;
             }
-            case POWER: {
-                return pow(leftValue, rightValue);
-            }
-            case MODULE: {
+            case S_REMAINDER: {
                 return (int) leftValue % (int)rightValue;
             }
-            case SEN: {
-                if(aux->value > 0) {
-                    return sin(rightValue);
-                } else {
-                    return -sin(rightValue);
-                }
-            }
-            case COS: {
-                if(aux->value > 0) {
-                    return cos(rightValue);
-                } else {
-                    return -cos(rightValue);
-                }
-            }
-            case TAN: {
-                if(aux->value > 0) {
-                    return tan(rightValue);
-                } else {
-                    return -tan(rightValue);
-                }
-            }
-            case ABS: {
-                if(aux->value > 0) {
-                    return abs(rightValue);
-                } else {
-                    return -abs(rightValue);
-                }
-            }
-            case NUM: {
+            case S_NUM_INTEGER: {
                 return aux->value;
             }
-            case VAR: {
-                if(aux->value > 0) {
-                    return x;
-                } else {
-                    return -x;
+            case S_IDENTIFIER: {
+                DeclarationNode *declaracao = findDeclaration(hash, aux->nome);
+                if(declaracao != NULL) {
+                    return declaracao->value;
                 }
+                break;
+            }
+            case S_EXP: {
+                return leftValue;
             }
             default: {
                 printf("ERROR: INVALID TYPE");
@@ -136,7 +139,7 @@ double calculateExpression(TreeNode *aux, double x) {
     }
 
     return -1;
-}*/
+}
 
 void deleteTree(TreeNode *aux) {
     if(aux) {
