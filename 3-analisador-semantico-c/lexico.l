@@ -13,6 +13,10 @@
     unsigned lineCounterId = 0;
 
     char *lineError;
+    char *lineBlock;
+
+    unsigned columnFunction = 0;
+    bool flgLineFunction = false;
 
     bool hasSyntaxError = false;
 %}
@@ -321,6 +325,8 @@
 }
 
 "(" {
+    columnFunction = columnCounter;
+
     columnCounter += strlen(yytext);
     strcat(lineError, yytext);
 
@@ -336,6 +342,10 @@
 "{" {
     columnCounter += strlen(yytext);
     strcat(lineError, yytext);
+
+    if(flgLineFunction) {
+        strcat(lineBlock, yytext);
+    }
 
     return L_CURLY_BRACKET;
 }
@@ -555,6 +565,8 @@
     else {
         return EOL;
     }
+
+    flgLineFunction = false;
 }
 
 [^ \t] {
@@ -565,6 +577,10 @@
 . {
     columnCounter++;
     strcat(lineError, yytext);
+
+    if(flgLineFunction) {
+        strcat(lineBlock, yytext);
+    }
 }
 
 <<EOF>> {

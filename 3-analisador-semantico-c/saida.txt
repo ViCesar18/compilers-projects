@@ -1,0 +1,3 @@
+error:semantic:3:6: argument 'a' does not match prototype
+void f(int *a)
+            ^

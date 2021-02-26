@@ -14,7 +14,6 @@ HashTableImp createHashTable(int size) {
 
 void insertHashTable(HashTableImp hash, DeclarationNode *declaracao) {
     char *id = declaracao->nome;
-    int type = declaracao->tipo;
 
     int idSize = strlen(id);
     char *idAlocado;
@@ -49,7 +48,6 @@ void insertHashTable(HashTableImp hash, DeclarationNode *declaracao) {
 
 DeclarationNode *existInHashTable(HashTableImp hash, DeclarationNode *declaracao) {
     char *id = declaracao->nome;
-    int type = declaracao->tipo;
 
     int idSize = strlen(id);
     int key = 0;

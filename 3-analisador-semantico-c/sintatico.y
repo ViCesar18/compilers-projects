@@ -14,7 +14,14 @@
     extern unsigned columnCounter;
     extern unsigned lineCounterId;
 
+    extern unsigned columnFunction;
+
     extern char *lineError;
+
+    // Para printar erro semântico em declaração de função e protótipo
+    extern char *lineBlock;
+    extern bool flgLineFunction;
+    unsigned lineFunction = 0;
 
     extern bool hasSyntaxError;
 
@@ -145,6 +152,8 @@
 %type <declaracao> parametros_double_prime
 %type <declaracao> opc_param
 
+%type <number> loop_ponteiro
+
 %start S
 
 %%
@@ -210,6 +219,8 @@ funcao: tipo loop_ponteiro IDENTIFIER parametros L_CURLY_BRACKET loop_variaveis 
 
     aux->tipo = $1;
 
+    aux->pointer = $2;
+
     aux->nome = (char *) malloc(sizeof($3) + 1);
     strcpy(aux->nome, $3);
 
@@ -219,6 +230,13 @@ funcao: tipo loop_ponteiro IDENTIFIER parametros L_CURLY_BRACKET loop_variaveis 
     aux->parameters = $4;
 
     aux->listaComandos = $7;
+
+    aux->linhaDeclaracao = (char *) malloc(sizeof(char) * strlen(lineBlock) + 1);
+    strcpy(aux->linhaDeclaracao, lineBlock);
+    memset(lineBlock, 0, sizeof(lineBlock));
+
+    aux->line = lineFunction;
+    aux->column = columnFunction;
 
     aux->next = NULL;
     $$ = aux;
@@ -238,6 +256,8 @@ declaracao_variaveis: tipo declaracao_variaveis_prime SEMICOLON {
 
 declaracao_variaveis_prime: loop_ponteiro IDENTIFIER loop_vetor opc_atribuicao declaracao_variaveis_double_prime {
     DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
+
+    aux->pointer = $1;
 
     aux->nome = (char *) malloc(sizeof($2) + 1);
     strcpy(aux->nome, $2);
@@ -263,8 +283,13 @@ declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {
     DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
 
     aux->tipo = $1;
+
+    aux->pointer = $2;
+
     aux->nome = (char *) malloc(sizeof($3) + 1);
     strcpy(aux->nome, $3);
+
+    aux->parameters = $4;
 
     aux->line = lineCounterId;
     aux->linhaDeclaracao = (char *) malloc(sizeof(char) * strlen(lineError) + 1);
@@ -279,13 +304,21 @@ declaracao_prototipos: tipo loop_ponteiro IDENTIFIER parametros SEMICOLON {
 ;
 
 //Parâmetros
-parametros: L_PAREN opc_param R_PAREN { $$ = $2; }
+parametros: L_PAREN opc_param R_PAREN {
+    strcpy(lineBlock, lineError);
+    flgLineFunction = true;
+    lineFunction = lineCounter;
+    $$ = $2;
+}
 ;
 
 parametros_prime: tipo loop_ponteiro IDENTIFIER opc_atribuicao parametros_double_prime {
     DeclarationNode *aux = (DeclarationNode *) malloc(sizeof(struct declaration));
 
     aux->tipo = $1;
+
+    aux->pointer = $2;
+
     aux->nome = (char *) malloc(sizeof($3) + 1);
     strcpy(aux->nome, $3);
 
@@ -811,8 +844,8 @@ numero:
 ;
 
 //Loops
-loop_ponteiro: MULTIPLY loop_ponteiro {}
-             |                        {}
+loop_ponteiro: MULTIPLY loop_ponteiro { $$ = $2 + 1; }
+             |                        { $$ = 0; }
 ;
 
 loop_variaveis:

@@ -31,13 +31,17 @@ struct expression {
 typedef struct declaration DeclarationNode;
 struct declaration {
     int tipo;
+    int pointer;
     char *nome;
 
-    int line;
-    int column;
+    unsigned line;
+    unsigned column;
     char *linhaDeclaracao;
 
     int tipoDeclaracao;
+
+    // Se for protótipo
+    DeclarationNode *parameters;
 
     ExpressionNode *expressao;
     DeclarationNode *next;
@@ -62,6 +66,7 @@ struct function {
     int flgDeclaracao;
 
     int tipo;
+    int pointer;
     char *nome;
 
     HashTableImp tabelaSimbolos;
@@ -70,6 +75,10 @@ struct function {
     DeclarationNode *parameters;
 
     CommandNode *listaComandos;
+
+    char *linhaDeclaracao;
+    unsigned line;
+    unsigned column;
 
     FunctionNode *next;
 };
