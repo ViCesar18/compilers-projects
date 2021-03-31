@@ -4,7 +4,7 @@
 
 typedef struct no {
     int elemento;
-    struct No *prox;
+    struct no *prox;
 } NoImp;
 
 typedef struct pilha {
@@ -12,11 +12,17 @@ typedef struct pilha {
     NoImp *topo;
 } PilhaImp;
 
-Pilha* iniciarPilha() {
-    PilhaImp *pilha = (Pilha *) malloc(sizeof(struct pilha));
+int getPilhaTamanho(Pilha p) {
+    PilhaImp *pilha = (PilhaImp *) p;
+
+    return pilha->tamanho;
+}
+
+Pilha iniciarPilha() {
+    PilhaImp *pilha = (PilhaImp *) malloc(sizeof(struct pilha));
 
     pilha->tamanho = 0;
-    pilha->topo = NULL;
+    pilha->topo = NULL; //(NoImp *) malloc(sizeof(struct no));
 
     return pilha;
 }

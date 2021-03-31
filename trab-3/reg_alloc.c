@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "grafo.h"
 #include "pilha.h"
 
@@ -19,7 +20,7 @@ int main() {
     }
     rewind(stdin);
 
-    Grafo grafo = iniciarGrafo(maior_registrador_logico + 1);
+    Grafo grafo = iniciarGrafo(maior_registrador_logico);
 
     // Lê os dados do grafo
     fscanf(stdin, "Grafo %d:\n", &graph_number);
@@ -35,7 +36,6 @@ int main() {
             char c = getc(stdin);
 
             if(c == '\n' || feof(stdin)) {
-                printf("\n");
                 break;
             }
 
@@ -47,7 +47,21 @@ int main() {
         }
     }
 
-    imprimirAdjacencias(grafo);
+    // Simplify
+    Pilha pilha = iniciarPilha();
+    while(getNumeroVerticesAtual(grafo) != 0) {
+        Vertice *v = buscarVerticeMenorGrau(grafo, k);
+
+        if(getVerticeSpill(v)) {
+            printf("Push: %d *\n", getVerticeId(v));
+        } else {
+            printf("Push: %d\n", getVerticeId(v));
+        }
+        push(pilha, getVerticeId(v));
+        removerVertice(grafo, getVerticeId(v));
+    }
+
+    //imprimirAdjacencias(grafo);
 
     destruirGrafo(grafo);
 
