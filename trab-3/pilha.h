@@ -4,7 +4,7 @@
 typedef void *Pilha;
 
 // Retorna o tamanho da pilha
-int getPilhaTamanho(Pilha p)
+int getPilhaTamanho(Pilha p);
 
 // Inicia e retorna uma pilha
 Pilha iniciarPilha();
