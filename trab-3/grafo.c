@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "grafo.h"
 
 typedef struct vertice {
@@ -12,6 +13,7 @@ typedef struct vertice {
 } VerticeImp;
 
 typedef struct grafo {
+    int **adjacencia_original;
     int **adjacencia;
     int numero_vertices;
     VerticeImp *vertices;
@@ -27,6 +29,12 @@ bool getVerticeSpill(Vertice *v) {
     VerticeImp *vertice = (VerticeImp *) v;
 
     return vertice->spill;
+}
+
+int getGrafoNumeroVertices(Grafo *g) {
+    GrafoImp *grafo = (GrafoImp *) g;
+
+    return grafo->numero_vertices;
 }
 
 int getNumeroVerticesAtual(Grafo *g) {
@@ -52,26 +60,23 @@ Grafo iniciarGrafo(int n) {
     g->numero_vertices = n + 1;
 
     g->adjacencia = (int **) calloc(n, sizeof(int *));
+    g->adjacencia_original = (int **) calloc(n, sizeof(int *));
     g->vertices = NULL;
     for(int i = 0; i < n + 1; i++) {
         g->adjacencia[i] = (int *) calloc(n, sizeof(int));
+        g->adjacencia_original[i] = (int *) calloc(n, sizeof(int));
 
         if(i >= 32) {
-            if(g->vertices == NULL) {
-                g->vertices = (VerticeImp *) malloc(sizeof(struct vertice));
-                g->vertices->id = i;
-                g->vertices->cor = -1;
-                g->vertices->grau = 0;
-                g->vertices->spill = false;
-                g->vertices->prox = NULL;
-            } else {
-                VerticeImp *novo_vertice = (VerticeImp *) malloc(sizeof(struct vertice));
-                novo_vertice->id = i;
-                novo_vertice->cor = -1;
-                novo_vertice->grau = 0;
-                novo_vertice->spill = false;
-                novo_vertice->prox = NULL;
+            VerticeImp *novo_vertice = (VerticeImp *) malloc(sizeof(struct vertice));
+            novo_vertice->id = i;
+            novo_vertice->cor = -1;
+            novo_vertice->grau = 0;
+            novo_vertice->spill = false;
+            novo_vertice->prox = NULL;
 
+            if(g->vertices == NULL) {
+                g->vertices = novo_vertice;
+            } else {
                 VerticeImp *v = g->vertices;
                 while(v->prox != NULL) {
                     v = v->prox;
@@ -89,6 +94,7 @@ void inserirAresta(Grafo *g, int origem, int destino) {
     GrafoImp *grafo = (GrafoImp *) g;
 
     grafo->adjacencia[origem][destino] = 1;
+    grafo->adjacencia_original[origem][destino] = 1;
 
     VerticeImp *v = grafo->vertices;
     while(v != NULL) {
@@ -113,11 +119,12 @@ void imprimirAdjacencias(Grafo *g) {
     }
 }
 
-void destruirGrafo(Grafo *g) {
+void destruirGrafo(Grafo g) {
     GrafoImp *grafo = (GrafoImp *) g;
 
     for(int i = 0; i < grafo->numero_vertices; i++) {
         free(grafo->adjacencia[i]);
+        free(grafo->adjacencia_original[i]);
     }
 
     VerticeImp *v = grafo->vertices;
@@ -128,6 +135,7 @@ void destruirGrafo(Grafo *g) {
     }
 
     free(grafo->adjacencia);
+    free(grafo->adjacencia_original);
     free(grafo);
 }
 
@@ -238,12 +246,12 @@ void removerVertice(Grafo g, int id) {
     recalcularGraus(grafo);
 }
 
-void inserirVertice(Grafo *g, int id) {
+void pintarVertice(Grafo *g, int id, int cor) {
     GrafoImp *grafo = (GrafoImp *) g;
 
     VerticeImp *novo_vertice = (VerticeImp *) malloc(sizeof(struct vertice));
     novo_vertice->id = id;
-    novo_vertice->cor = -1;
+    novo_vertice->cor = cor;
     novo_vertice->grau = 0;
     novo_vertice->spill = false;
     novo_vertice->prox = NULL;
@@ -258,4 +266,50 @@ void inserirVertice(Grafo *g, int id) {
 
         v->prox = novo_vertice;
     }
+}
+
+void ajustarAdjacencias(Grafo g, int id) {
+    GrafoImp *grafo = (GrafoImp*) g;
+
+    //memcpy(&grafo->adjacencia[id], &grafo->adjacencia_original[id], grafo->numero_vertices - 1 * sizeof(int));
+
+    for(int i = 0; i < grafo->numero_vertices; i++) {
+        grafo->adjacencia[id][i] = grafo->adjacencia_original[id][i];
+    }
+    
+    recalcularGraus(grafo);
+}
+
+int getCorLivre(Grafo *g, int id, int k) {
+    GrafoImp *grafo = (GrafoImp *) g;
+    int cores[k];
+    int count = 0;
+    bool flg_cor_valida = true;
+
+    for(int i = 0; i < k; i++) {
+        if(grafo->adjacencia[id][i] == 0) {
+            cores[count] = i;
+            count++;
+        }
+    }
+
+    for(int i = 0; i < count; i++) {
+        for(int j = k; j < grafo->numero_vertices; j++) {
+            if(grafo->adjacencia[id][j] == 1) {
+                VerticeImp *v = buscarVertice(grafo, j);
+                if(v != NULL && v->cor == cores[i]) {
+                    flg_cor_valida = false;
+                    break;
+                }
+            }
+        }
+
+        if(flg_cor_valida) {
+            return cores[i];
+        }
+
+        flg_cor_valida = true;
+    }
+
+    return -1;
 }

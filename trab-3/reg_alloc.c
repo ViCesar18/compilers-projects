@@ -47,23 +47,53 @@ int main() {
         }
     }
 
-    // Simplify
-    Pilha pilha = iniciarPilha();
-    while(getNumeroVerticesAtual(grafo) != 0) {
-        Vertice *v = buscarVerticeMenorGrau(grafo, k);
+    printf("Graph %d -> Physical Registers: %d\n", graph_number, k);
+    printf("----------------------------------------\n");
 
-        if(getVerticeSpill(v)) {
-            printf("Push: %d *\n", getVerticeId(v));
-        } else {
-            printf("Push: %d\n", getVerticeId(v));
+    bool flgPrint = true;
+    for(k = k; k >= 2; k--) {
+        printf("----------------------------------------\n");
+        printf("K = %d\n\n", k);
+
+        // Simplify
+        Pilha pilha = iniciarPilha();
+        while(getNumeroVerticesAtual(grafo) != 0) {
+            Vertice *v = buscarVerticeMenorGrau(grafo, k);
+
+            if(getVerticeSpill(v)) {
+                printf("Push: %d *\n", getVerticeId(v));
+            } else {
+                printf("Push: %d\n", getVerticeId(v));
+            }
+            push(pilha, getVerticeId(v));
+            removerVertice(grafo, getVerticeId(v));
         }
-        push(pilha, getVerticeId(v));
-        removerVertice(grafo, getVerticeId(v));
+
+        // Select/Assign
+        while(getPilhaTamanho(pilha) != 0) {
+            int id = pop(pilha);
+
+            ajustarAdjacencias(grafo, id);
+
+            int cor_livre = getCorLivre(grafo, id, k);
+
+            if(flgPrint) {
+                if(cor_livre == -1) {
+                    printf("Pop: %d -> NO COLOR AVAILABLE\n", id);
+                    flgPrint = false;
+                } else {
+                    printf("Pop: %d -> %d\n", id, cor_livre);
+                }
+            }
+            
+            pintarVertice(grafo, id, cor_livre);
+        }
+
+        destruirPilha(pilha);
+        flgPrint = true;
     }
 
-    //imprimirAdjacencias(grafo);
-
-    destruirGrafo(grafo);
+    //destruirGrafo(grafo);
 
     return 0;
 }
