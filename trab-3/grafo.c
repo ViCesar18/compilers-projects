@@ -54,39 +54,40 @@ int getNumeroVerticesAtual(Grafo *g) {
     }
 }
 
-Grafo iniciarGrafo(int n) {
+Grafo iniciarGrafo(Pilha pilha_registradores_logicos) {
     GrafoImp *g = (GrafoImp *) malloc(sizeof(struct grafo));
 
-    g->numero_vertices = n + 1;
+    g->numero_vertices = pop(pilha_registradores_logicos) + 1;
+    push(pilha_registradores_logicos, g->numero_vertices - 1);
 
-    g->adjacencia = (int **) calloc(n, sizeof(int *));
-    g->adjacencia_original = (int **) calloc(n, sizeof(int *));
+    g->adjacencia = (int **) calloc(g->numero_vertices, sizeof(int *));
+    g->adjacencia_original = (int **) calloc(g->numero_vertices, sizeof(int *));
     g->vertices = NULL;
-    for(int i = 0; i < n + 1; i++) {
-        g->adjacencia[i] = (int *) calloc(n, sizeof(int));
-        g->adjacencia_original[i] = (int *) calloc(n, sizeof(int));
-
-        if(i >= 32) {
-            VerticeImp *novo_vertice = (VerticeImp *) malloc(sizeof(struct vertice));
-            novo_vertice->id = i;
-            novo_vertice->cor = -1;
-            novo_vertice->grau = 0;
-            novo_vertice->spill = false;
-            novo_vertice->prox = NULL;
-
-            if(g->vertices == NULL) {
-                g->vertices = novo_vertice;
-            } else {
-                VerticeImp *v = g->vertices;
-                while(v->prox != NULL) {
-                    v = v->prox;
-                }
-
-                v->prox = novo_vertice;
-            }
-        }
+    for(int i = 0; i < g->numero_vertices; i++) {
+        g->adjacencia[i] = (int *) calloc(g->numero_vertices, sizeof(int));
+        g->adjacencia_original[i] = (int *) calloc(g->numero_vertices, sizeof(int));
     }
 
+    while(getPilhaTamanho(pilha_registradores_logicos) != 0) {
+        VerticeImp *novo_vertice = (VerticeImp *) malloc(sizeof(struct vertice));
+        novo_vertice->id = pop(pilha_registradores_logicos);
+        novo_vertice->cor = -1;
+        novo_vertice->grau = 0;
+        novo_vertice->spill = false;
+        novo_vertice->prox = NULL;
+
+        if(g->vertices == NULL) {
+            g->vertices = novo_vertice;
+        } else {
+            VerticeImp *v = g->vertices;
+            while(v->prox != NULL) {
+                v = v->prox;
+            }
+
+            v->prox = novo_vertice;
+        }
+    }
+    
     return g;
 }
 
@@ -266,18 +267,16 @@ void pintarVertice(Grafo *g, int id, int cor) {
 
         v->prox = novo_vertice;
     }
+
+    recalcularGraus(grafo);
 }
 
 void ajustarAdjacencias(Grafo g, int id) {
     GrafoImp *grafo = (GrafoImp*) g;
 
-    //memcpy(&grafo->adjacencia[id], &grafo->adjacencia_original[id], grafo->numero_vertices - 1 * sizeof(int));
-
     for(int i = 0; i < grafo->numero_vertices; i++) {
         grafo->adjacencia[id][i] = grafo->adjacencia_original[id][i];
     }
-    
-    recalcularGraus(grafo);
 }
 
 int getCorLivre(Grafo *g, int id, int k) {

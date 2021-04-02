@@ -2,6 +2,7 @@
 #define GRAFO_H
 
 #include <stdbool.h>
+#include "pilha.h"
 
 typedef void* Grafo;
 typedef void* Vertice;
@@ -16,7 +17,7 @@ bool getVerticeSpill(Vertice *v);
 int getNumeroVerticesAtual(Grafo *g);
 
 // Inicializa e retorna um grafo
-Grafo iniciarGrafo(int n);
+Grafo iniciarGrafo(Pilha pilha_registradores_logicos);
 
 // Insere uma aresta no grafo
 void inserirAresta(Grafo *g, int origem, int destino);
@@ -27,14 +28,8 @@ void imprimirAdjacencias(Grafo *g);
 // Libera a memória alocada para o grafo
 void destruirGrafo(Grafo g);
 
-// Recalcula o grau de todos os vértices
-void recalcularGraus(Grafo g);
-
 // Busca o vértice que possui o menor grau
 Vertice buscarVerticeMenorGrau(Grafo g, int k);
-
-// Busca um vértice com base no id
-Vertice buscarVertice(Grafo g, int id);
 
 // Remove um vértice do grafo
 void removerVertice(Grafo g, int id);

@@ -22,7 +22,7 @@ Pilha iniciarPilha() {
     PilhaImp *pilha = (PilhaImp *) malloc(sizeof(struct pilha));
 
     pilha->tamanho = 0;
-    pilha->topo = NULL; //(NoImp *) malloc(sizeof(struct no));
+    pilha->topo = NULL;
 
     return pilha;
 }
